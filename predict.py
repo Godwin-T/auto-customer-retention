@@ -6,12 +6,15 @@ import numpy as np
 import pickle
 from flask import Flask, request, jsonify
 
+
+
 MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 logged_model = 'runs:/b5eb75916ba045bc99b4902ea507a319/model'
 
 # Load model
 loaded_model = mlflow.pyfunc.load_model(logged_model)
+print('Connected')
 
 utils_path = 'Churn.bin'
 with open(utils_path, 'rb') as f:
@@ -61,7 +64,6 @@ def predict():
     output = data[data['churn'] == 1]
     output.to_csv('data/churn.csv', index = False)
     output_text = {'Prediction Status': 'The model successufully predicted the customers that are likely to churn and save the file'}
-    #results = {'Prediction':prediction, 'Churn':bool(churn)}
     output = {'Prediction Shape':prediction.shape}
     return jsonify(output_text)
 

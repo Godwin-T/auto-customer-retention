@@ -18,11 +18,6 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-
-# mlflow.set_tracking_uri('sqlite:///mlflow.db')
-# mlflow.set_experiment('Telcom Churn')
-# mlflow.autolog(True)
-
 @task(retries= 3, retry_delay_seconds=2)
 def read_dataframe(path):
 
@@ -110,5 +105,5 @@ def main_flow(path: str = './data/Telco-Customer-Churn.csv'):
     return metrics
 
     
-if __name__ == '__main__':
-    main_flow()
+# if __name__ == '__main__':
+#     main_flow()

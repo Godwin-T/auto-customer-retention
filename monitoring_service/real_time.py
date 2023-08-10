@@ -25,6 +25,7 @@ with open("target.csv", 'w') as f_target:
 
     url = "http://127.0.0.1:9696/predict"
     for row in data:
-
-        response = requests.post(url, json = row).json()        
-        print(f"prediction: {response['churn']}")
+        print('===============')
+        response = requests.post(url, json = row).json() 
+        print(f"prediction: {response['churn']}, 'Dir': {response['Dir']}")
+        sleep(1)

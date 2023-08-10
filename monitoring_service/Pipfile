@@ -5,10 +5,11 @@ name = "pypi"
 
 [packages]
 mlflow = "*"
-pandas = "*"
-numpy = "*"
 flask = "*"
 pymongo = "*"
+pandas = "*"
+uuid = "*"
+numpy = "*"
 
 [dev-packages]
 

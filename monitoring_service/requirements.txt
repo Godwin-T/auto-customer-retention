@@ -1,0 +1,6 @@
+mlflow
+flask
+pymongo
+pandas
+uuid
+numpy

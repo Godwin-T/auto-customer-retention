@@ -14,17 +14,17 @@ from mlflow.entities import ViewType
 child_directory = os.getcwd()
 parent_directory = os.path.dirname(child_directory)
 
-MLFLOW_TRACKING_URI = f"sqlite:///{parent_directory}/model/mlflow.db"
+MLFLOW_TRACKING_URI = f"sqlite:///{parent_directory}/mlflow.db"
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
 client = MlflowClient(tracking_uri=MLFLOW_TRACKING_URI)
-runs = client.search_runs(
-    experiment_ids='1',
-    filter_string="metrics.test_f1_score >0.595",
-    run_view_type=ViewType.ACTIVE_ONLY,
-    max_results=5,
-    order_by=["metrics.test_f1_score ASC"]
-)
+# runs = client.search_runs(
+#     experiment_ids='1',
+#     filter_string="metrics.test_f1_score >0.595",
+#     run_view_type=ViewType.ACTIVE_ONLY,
+#     max_results=5,
+#     order_by=["metrics.test_f1_score ASC"]
+# )
 
 name = "Custormer-churn-models"
 stage="Staging"
@@ -69,11 +69,10 @@ def predict():
     customer = request.get_json()
     data = load_data(customer)
     data, df = prepare_data(data)
-    #encoded_data = data_encoder(data, feature_cols)
     prediction = loaded_model.predict(df)
     data['churn'] = prediction
     output = data[data['churn'] == 1]
-    output.to_csv('predictions/churn.csv', index = False)
+    output.to_csv('predictions/churning customers.csv', index = False)
     output_text = {'Prediction Status': 'The model successufully predicted the customers that are likely to churn and save the file'}
     return jsonify(output_text)
 

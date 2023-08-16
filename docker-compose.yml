@@ -26,10 +26,11 @@ services:
       - back-tier
       - front-tier
     volumes:
-      - ./
+      - ./mlruns:/app/mlruns
+      - ./mlflow.db:/app/mlflow.db
   evidently_service:
     build:
-      context: evidently_service
+      context: monitoring_service
       dockerfile: Dockerfile
     depends_on:
       - grafana

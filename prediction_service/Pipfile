@@ -4,12 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-mlflow = "*"
+mlflow = "==2.5.0"
 flask = "*"
 pymongo = "*"
 pandas = "*"
 uuid = "*"
 numpy = "*"
+gunicorn = "*"
 
 [dev-packages]
 

@@ -3,3 +3,4 @@ mlruns/
 data/
 predictions/
 *ipynb
+*csv

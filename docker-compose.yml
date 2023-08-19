@@ -26,7 +26,7 @@ services:
       - back-tier
       - front-tier
     volumes:
-      - ./mlruns:/app/mlruns
+      - ./mlruns:/home/godwin/Documents/Workflow/Churn-Prediction-in-a-Telecom-Company/mlruns
       - ./mlflow.db:/app/mlflow.db
   evidently_service:
     build:

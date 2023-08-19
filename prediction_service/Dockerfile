@@ -5,6 +5,8 @@ RUN pip install pipenv
 
 WORKDIR /app
 
+WORKDIR /home/godwin/Documents/Workflow/Churn-Prediction-in-a-Telecom-Company
+
 COPY [ "Pipfile", "Pipfile.lock", "./" ]
 
 RUN pipenv install --system --deploy

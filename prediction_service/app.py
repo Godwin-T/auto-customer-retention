@@ -18,7 +18,7 @@ out = mlflow.get_registry_uri()
 model_name = "Custormer-churn-models"
 model_stage="Production"
 
-client = MlflowClient(registry_uri=out)
+client = MlflowClient(registry_uri=MLFLOW_TRACKING_URI)
 (name, version) = (model_name, "4")
 download_uri = client.get_model_version_download_uri(name, version)
 

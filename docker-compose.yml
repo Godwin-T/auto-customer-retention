@@ -27,7 +27,7 @@ services:
       - front-tier
     volumes:
       - ./mlruns:/home/godwin/Documents/Workflow/Churn-Prediction-in-a-Telecom-Company/mlruns
-      - ./mlflow.db:/app/mlflow.db
+      - ./mlflow.db:/home/mlflow.db
   evidently_service:
     build:
       context: monitoring_service

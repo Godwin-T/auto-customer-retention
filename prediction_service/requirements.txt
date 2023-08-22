@@ -1,4 +1,4 @@
-mlflow==2.5.0
+mlflow
 flask
 pymongo
 pandas

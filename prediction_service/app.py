@@ -7,11 +7,12 @@ from pymongo import MongoClient
 from mlflow import MlflowClient
 
 
-child_directory = os.getcwd()
+child_dir = os.getcwd()
+parent_dir = os.path.dirname(child_dir)
 EVIDENTLY_SERVICE_ADDRESS = os.getenv('EVIDENTLY_SERVICE', 'http://127.0.0.1:5000')
 MONGODB_ADDRESS = os.getenv("MONGODB_ADDRESS", "mongodb://127.0.0.1:27017")
 
-MLFLOW_TRACKING_URI = f"sqlite:///{child_directory}/mlflow.db"
+MLFLOW_TRACKING_URI = f"sqlite:///{child_dir}/mlflow.db"
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 out = mlflow.get_registry_uri()
 
@@ -23,7 +24,7 @@ client = MlflowClient(registry_uri=MLFLOW_TRACKING_URI)
 download_uri = client.get_model_version_download_uri(name, version)
 
 
-#loaded_model = mlflow.pyfunc.load_model(f"models:/{model_name}/{model_stage}")
+loaded_model = mlflow.pyfunc.load_model(f"models:/{model_name}/{model_stage}")
 
 # path = f"{child_directory}/mlruns/1/62d11921be9a43ca8fe1fdae4478eb24/artifacts/model"
 # files = os.listdir(path)

@@ -4,7 +4,6 @@ import mlflow
 
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
-from mlflow import MlflowClient
 
 
 child_dir = os.getcwd()
@@ -57,7 +56,7 @@ def predict():
         prediction = loaded_model.predict(record)
         output = {'customerid': customer_id, 'churn':bool(prediction)}
         save_to_db(record, bool(prediction))
-        #send_to_evidently_service(record, bool(prediction))
+        send_to_evidently_service(record, bool(prediction))
         return jsonify(output)
     except:
         output = {'customerid': None, 'churn':None}

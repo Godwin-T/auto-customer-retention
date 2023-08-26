@@ -1,0 +1,6 @@
+mlflow
+xgboost==1.7.5
+scikit-learn>=0.23.0.
+pandas
+numpy
+hyperopt

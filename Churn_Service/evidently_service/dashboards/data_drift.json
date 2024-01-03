@@ -21,21 +21,36 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "iteration": 1651157972098,
+  "iteration": 1651157034829,
   "links": [],
   "liveNow": false,
   "panels": [
+    {
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 14,
+      "options": {
+        "content": "# Evidently Data Drift Monitoring\n\n  Here can be your information about dashboard and its usage.\n",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.3.6",
+      "type": "text"
+    },
     {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 3
       },
-      "id": 24,
+      "id": 12,
       "panels": [],
-      "title": "Row title",
+      "title": "General information",
       "type": "row"
     },
     {
@@ -43,18 +58,43 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed"
           },
-          "mappings": [],
+          "custom": {
+            "fillOpacity": 70,
+            "lineWidth": 0
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "No Data Drift"
+                },
+                "1": {
+                  "color": "red",
+                  "index": 0,
+                  "text": "Data Drift Detected"
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
               }
             ]
           }
@@ -62,28 +102,25 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 8,
+        "h": 7,
+        "w": 24,
         "x": 0,
-        "y": 1
+        "y": 4
       },
-      "id": 28,
+      "id": 2,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
+        "alignValue": "center",
+        "legend": {
+          "displayMode": "hidden",
+          "placement": "bottom"
         },
-        "text": {},
-        "textMode": "auto"
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single"
+        }
       },
-      "pluginVersion": "8.3.6",
       "targets": [
         {
           "datasource": {
@@ -91,138 +128,15 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "evidently:regression_performance:quality{dataset=\"current\", metric=\"mean_error\", dataset_name=\"${dataset_name:raw}\"}",
+          "expr": "evidently:data_drift:dataset_drift{dataset_name=\"${dataset_name:raw}\"}",
+          "instant": false,
           "interval": "",
-          "legendFormat": "ME",
+          "legendFormat": "dataset drift",
           "refId": "A"
         }
       ],
-      "title": "ME",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 1
-      },
-      "id": 30,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.3.6",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "exemplar": true,
-          "expr": "evidently:regression_performance:quality{dataset=\"current\", metric=\"mean_abs_error\", dataset_name=\"${dataset_name:raw}\"}",
-          "interval": "",
-          "legendFormat": "ME",
-          "refId": "A"
-        }
-      ],
-      "title": "MAE",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 1
-      },
-      "id": 29,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {},
-        "textMode": "auto"
-      },
-      "pluginVersion": "8.3.6",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "exemplar": true,
-          "expr": "evidently:regression_performance:quality{dataset=\"current\", metric=\"mean_abs_perc_error\", dataset_name=\"${dataset_name:raw}\"}",
-          "interval": "",
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
-      "title": "MAPE",
-      "type": "stat"
+      "title": "Dataset Drift",
+      "type": "state-timeline"
     },
     {
       "datasource": {
@@ -263,6 +177,8 @@
             }
           },
           "mappings": [],
+          "max": 1,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -272,24 +188,25 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 0.8
               }
             ]
-          }
+          },
+          "unit": "percentunit"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 24,
+        "h": 7,
+        "w": 12,
         "x": 0,
-        "y": 9
+        "y": 11
       },
-      "id": 26,
+      "id": 6,
       "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "list",
+          "displayMode": "hidden",
           "placement": "bottom"
         },
         "tooltip": {
@@ -303,38 +220,156 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "evidently:regression_performance:quality{dataset=\"current\", metric=\"mean_error\", dataset_name=\"${dataset_name:raw}\"}",
+          "expr": "evidently:data_drift:share_drifted_features{dataset_name=\"${dataset_name:raw}\"}",
           "interval": "",
-          "legendFormat": "ME",
+          "legendFormat": "share",
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "exemplar": true,
-          "expr": "evidently:regression_performance:quality{dataset=\"current\", metric=\"mean_abs_error\", dataset_name=\"${dataset_name:raw}\"}",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "MAE",
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "exemplar": true,
-          "expr": "evidently:regression_performance:quality{dataset=\"current\", metric=\"mean_abs_perc_error\", dataset_name=\"${dataset_name:raw}\"}",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "MAPE",
-          "refId": "C"
         }
       ],
-      "title": "Aggregated Metrics in time",
+      "title": "Share of drifted features",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 12,
+        "y": 11
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^Drifted$/",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.3.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "exemplar": true,
+          "expr": "evidently:data_drift:n_drifted_features{dataset_name=\"${dataset_name:raw}\"}",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Drifted",
+          "refId": "B"
+        }
+      ],
+      "title": "# of drifted features",
+      "transformations": [],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 18,
+        "y": 11
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.3.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "exemplar": true,
+          "expr": "evidently:data_drift:n_drifted_features{dataset_name=\"${dataset_name:raw}\"} / evidently:data_drift:share_drifted_features{dataset_name=\"${dataset_name:raw}\"}",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Total",
+          "refId": "A"
+        }
+      ],
+      "title": "# of features",
+      "transformations": [],
+      "type": "stat"
     },
     {
       "collapsed": false,
@@ -344,9 +379,9 @@
         "x": 0,
         "y": 18
       },
-      "id": 13,
+      "id": 10,
       "panels": [],
-      "title": "Feature error bias",
+      "title": "Detailed information",
       "type": "row"
     },
     {
@@ -360,7 +395,7 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisLabel": "Mean",
+            "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
@@ -372,12 +407,15 @@
               "viz": false
             },
             "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -402,16 +440,44 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 8
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 6,
-        "w": 12,
+        "h": 11,
+        "w": 24,
         "x": 0,
         "y": 19
       },
-      "id": 2,
-      "maxPerRow": 2,
+      "id": 4,
       "options": {
         "legend": {
           "calcs": [],
@@ -422,8 +488,6 @@
           "mode": "single"
         }
       },
-      "repeat": "feature",
-      "repeatDirection": "h",
       "targets": [
         {
           "datasource": {
@@ -431,9 +495,9 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "evidently:regression_performance:feature_error_bias{feature=\"${feature:raw}\", metric=\"current_over\", dataset_name=\"${dataset_name:raw}\"}",
+          "expr": "evidently:data_drift:p_value{dataset_name=\"${dataset_name:raw}\"}",
           "interval": "",
-          "legendFormat": "Overestimation",
+          "legendFormat": "{{feature}}",
           "refId": "A"
         },
         {
@@ -442,30 +506,19 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "evidently:regression_performance:feature_error_bias{feature=\"${feature:raw}\", metric=\"current_under\", dataset_name=\"${dataset_name:raw}\"}",
+          "expr": "evidently:reference_dataset_hash",
           "hide": false,
           "interval": "",
-          "legendFormat": "Underestimation",
+          "intervalFactor": 1,
+          "legendFormat": "reference_hash",
           "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "exemplar": true,
-          "expr": "evidently:regression_performance:feature_error_bias{feature=\"${feature:raw}\", metric=\"current_majority\", dataset_name=\"${dataset_name:raw}\"}",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Majority",
-          "refId": "C"
         }
       ],
-      "title": "Error Bias: $feature",
+      "title": "Feature Drift Score",
       "type": "timeseries"
     }
   ],
-  "refresh": false,
+  "refresh": "10s",
   "schemaVersion": 34,
   "style": "dark",
   "tags": [],
@@ -496,47 +549,17 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
-      },
-      {
-        "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
-        },
-        "definition": "label_values(evidently:regression_performance:feature_error_bias, feature)",
-        "hide": 0,
-        "includeAll": true,
-        "multi": true,
-        "name": "feature",
-        "options": [],
-        "query": {
-          "query": "label_values(evidently:regression_performance:feature_error_bias, feature)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
       }
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Evidently Regression Performance Dashboard",
-  "uid": "-GLqhe-nz",
-  "version": 3,
+  "title": "Evidently Data Drift Dashboard",
+  "uid": "U54hsxv7k",
+  "version": 2,
   "weekStart": ""
 }

@@ -1,9 +1,15 @@
 import os
+from typing import List
 import pandas as pd
-from utils_and_constants import RAW_DATASET, TARGET_COLUMN, PROCESSED_DATASET
+from utils_and_constants import (
+    RAW_DATASET,
+    TARGET_COLUMN,
+    PROCESSED_DATASET,
+    DROP_COLUMNS,
+)
 
 
-def read_dataset(filepath: str):
+def read_dataset(filepath: str, drop_cols: List):
 
     dataframe = pd.read_csv(filepath)
     dataframe.columns = dataframe.columns.str.replace(" ", "_").str.lower()
@@ -12,6 +18,7 @@ def read_dataset(filepath: str):
     for col in categorical_col:
         dataframe[col] = dataframe[col].str.replace(" ", "_").str.lower()
 
+    dataframe = dataframe.drop(drop_cols, axis=1)
     return dataframe
 
 
@@ -27,7 +34,7 @@ def prepare_dataset(dataframe: pd.DataFrame):
 
 def main():
     # Read data
-    churn_data = read_dataset(filepath=RAW_DATASET)
+    churn_data = read_dataset(filepath=RAW_DATASET, drop_cols=DROP_COLUMNS)
     churn_data = prepare_dataset(churn_data)
 
     if not os.path.exists(os.path.dirname(PROCESSED_DATASET)):

@@ -18,8 +18,8 @@ def save_metrics(metrics):
     if not os.path.exists(os.path.dirname(METRICS_PATH)):
         os.mkdir(os.path.dirname(METRICS_PATH))
 
-    with open(METRICS_PATH, "w") as fp:
-        json.dump(metrics, fp)
+    with open(METRICS_PATH, "w") as json_file:
+        json.dump(metrics, json_file)
 
 
 def save_predictions(y_test, y_pred):

@@ -52,6 +52,6 @@ def save_model(model):
     if not os.path.exists(os.path.dirname(MODEL_PATH)):
         os.mkdir(os.path.dirname(MODEL_PATH))
 
-    with open(MODEL_PATH, "wb") as f:
-        pickle.dump([model], f)
+    with open(MODEL_PATH, "wb") as f_out:
+        pickle.dump(model, f_out)
     print("Model saved successfully!")

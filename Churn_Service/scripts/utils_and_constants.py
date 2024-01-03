@@ -4,6 +4,7 @@ from pathlib import Path
 
 RAW_DATASET = "../raw_data/Telco-Customer-Churn.csv"
 TARGET_COLUMN = "churn"
+DROP_COLUMNS = ["customerid"]
 PROCESSED_DATASET = "../processed_data/churn.csv"
 MODEL_PATH = "../models/churn_model.pkl"
 METRICS_PATH = "../model_output/metrics.json"

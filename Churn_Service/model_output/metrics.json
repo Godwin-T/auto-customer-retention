@@ -1,0 +1,1 @@
+{"Train evaluation result": {"acc": 0.8054607508532423, "f1_score": 0.5970149253731343, "precision": 0.6625980819529207, "recall": 0.5432451751250893}, "Test evaluation result": {"acc": 0.8077, "f1_score": 0.5947, "precision": 0.6813, "recall": 0.5277}}

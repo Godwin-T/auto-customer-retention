@@ -1,7 +1,6 @@
-import os
-from constant import MODEL_NAME, API_KEY
-from langchain.llms import OpenAI
+import streamlit as st
 from langchain.prompts import PromptTemplate
+from langchain.memory import ChatMessageHistory
 
 
 def get_context():
@@ -26,20 +25,31 @@ def mail_revamp(model, mail, corrections):
 
     prompt = PromptTemplate(
         input_variables=["mail" "corrections"],
-        template="The {mail} you generated is fine but can these {corrrections} be made to make it better",
+        template="The {mail} you generated is fine but can these {corrections} be made to make it better",
     )
     output = model.invoke(prompt.format(mail=mail, corrections=corrections))
     return output
 
 
-def main():
+def chat_mode(model):
 
-    os.environ[[REDACTED]] = API_KEY
-    model = OpenAI(model=MODEL_NAME, temperature=0.5)
-    context = get_context()
-    mail = mail_generation(model, context)
-    print(mail)
+    chat_history = ChatMessageHistory()
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
 
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
-if __name__ == "__main__":
-    main()
+    prompt = st.chat_input("Enter your message:", key="chat_input")
+    if prompt:
+        chat_history.add_user_message(prompt)
+        st.chat_message("user").markdown(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+        response = model(chat_history.messages).content
+        chat_history.add_ai_message(response)
+
+        with st.chat_message("assistant"):
+            st.markdown(response)
+        st.session_state.messages.append({"role": "assistant", "content": response})

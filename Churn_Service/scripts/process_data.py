@@ -8,7 +8,7 @@ from utils_and_constants import (
     DROP_COLUMNS,
 )
 
-
+# LOad data
 def read_dataset(filepath: str, drop_cols: List):
 
     dataframe = pd.read_csv(filepath)
@@ -22,6 +22,7 @@ def read_dataset(filepath: str, drop_cols: List):
     return dataframe
 
 
+# Prepare Data
 def prepare_dataset(dataframe: pd.DataFrame):
 
     dataframe = dataframe[dataframe["totalcharges"] != "_"]
@@ -33,7 +34,6 @@ def prepare_dataset(dataframe: pd.DataFrame):
 
 
 def main():
-    # Read data
     churn_data = read_dataset(filepath=RAW_DATASET, drop_cols=DROP_COLUMNS)
     churn_data = prepare_dataset(churn_data)
 

@@ -1,12 +1,15 @@
 # import mlflow
 import pickle
 import pandas as pd
-from flask import Flask, request, jsonify
 from utils import MODEL_PATH
+from flask import Flask, request, jsonify
+from prefect import task, flow
+
 
 # from pymongo import MongoClient
 
 
+@task
 def load_model(model_path):
 
     with open(model_path, "rb") as f:
@@ -14,6 +17,7 @@ def load_model(model_path):
     return model
 
 
+@task
 def prepare_data(data):
 
     data = pd.DataFrame(data)
@@ -29,18 +33,9 @@ def prepare_data(data):
     return customer_id, data
 
 
-app = Flask("Churn")
+@task
+def prepare_output(customer_id, prediction):
 
-
-@app.route("/predict", methods=["POST"])
-def predict():
-
-    data = request.get_json()
-    model = load_model(MODEL_PATH)
-    customer_id, record = prepare_data(data)
-    record = record.to_dict(orient="records")
-
-    prediction = model.predict(record)
     dicts = {"customerid": customer_id, "churn": prediction}
     data_frame = pd.DataFrame(dicts)
 
@@ -52,6 +47,25 @@ def predict():
     customer_id = [str(id) for id in customer_id]
 
     output = {"customerid": customer_id, "churn": prediction}
+    return output
+
+
+app = Flask("Churn")
+
+
+@app.route("/predict", methods=["POST"])
+@flow
+def predict():
+
+    data = request.get_json()
+    model = load_model(MODEL_PATH)
+
+    customer_id, record = prepare_data(data)
+    record = record.to_dict(orient="records")
+
+    prediction = model.predict(record)
+    output = prepare_output(customer_id, prediction)
+
     return jsonify(output)
 
 

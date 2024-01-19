@@ -1,59 +1,101 @@
 import streamlit as st
-from langchain.prompts import PromptTemplate
-from langchain.memory import ChatMessageHistory
+
+from prefect import task, flow
+from langchain.llms import OpenAI
+from langchain.chat_models import ChatOpenAI
+
+from Churn_Service.training_pipeline.constants import PREDICTION_URL
+from Churn_Service.service import predict_churn
+from LLM_Service.scripts.constant import API_KEY, COMPLETION_MODEL_NAME
+from LLM_Service.scripts.utils import mail_generation, mail_revamp, chat_mode
 
 
-def get_context():
-    # Function to retrieve the context for mail generation
-    context = "Generate a mail for one of our customers in a relationship informing them of a network upgrade coming to the area soon"
-    return context
+chatllm = ChatOpenAI(temperature=0.5, openai_api_key=API_KEY)
+model = OpenAI(model=COMPLETION_MODEL_NAME, temperature=0.5, openai_api_key=API_KEY)
 
 
-def mail_generation(model, context):
-    # Function to generate a promotional mail based on a given context using a language model
-    prompt = PromptTemplate(
-        input_variables=["description"],
-        template="We are a telecommunication company and we are trying to prevent customers from churning. Generate a promotional mail for one of our customer using information in {description} as context and it should have a subject relating to the context",
+def revamp(mail=None):
+
+    if mail is None:
+        st.write(mail)
+        mail = st.text_input("Enter the mail to be revamped")
+
+    revamp_details = st.text_input("Enter corrections to be made")
+
+    if st.button("Revamp"):
+        if mail and revamp_details:
+            mail = mail_revamp(model, mail, revamp_details)
+            st.write(mail)
+            return mail
+        else:
+            st.warning("Give the required information")
+
+
+def churn_prediction():
+
+    st.subheader("Predict the likelihood of customer churn with advanced analytics.")
+    uploaded_file = st.file_uploader("Upload a CSV file", type="csv")
+    if uploaded_file:
+        churn = predict_churn(PREDICTION_URL, uploaded_file)
+        csv_data = churn.to_csv(index=False)  # Convert DataFrame to CSV string
+        st.download_button(
+            label="Download CSV",
+            data=csv_data,
+            file_name="my_data.csv",
+            mime="text/csv",
+        )
+
+
+def generate_emails():
+    st.subheader("Generate promotional emails using pre-existing")
+    context = st.text_input("Enter mail context")
+
+    if st.button("Generate"):
+        if context:
+            mail = mail_generation(model, context)
+            st.write(mail)
+            print(mail)
+            return mail
+        else:
+            st.warning("Please enter a mail context before generating.")
+
+
+def homepage():
+    st.title("Customer Retention Service")
+    st.write(
+        """Welcome to our Customer Retention Service. This service specializes in predicting the\
+             likelihood of customer churn for a telecommunications company. Additionally, it generates \
+            promotional emails tailored to individual customer contexts, enhancing targeted engagement."""
     )
-    output = model.invoke(prompt.format(description=context))
-    return output
 
-
-def mail_revamp(model, mail, corrections):
-    # Function to suggest corrections and revamp a generated mail
-    prompt = PromptTemplate(
-        input_variables=["mail", "corrections"],
-        template="The {mail} you generated is fine but can these {corrections} be made to make it better",
+    st.write(
+        """This service offers diverse usage options:\n 1. Generate promotional emails using pre-existing\
+              contexts.\n 2. Engage with the chatbot to gather insights and create contexts for personalized promotional\
+              emails.\n 3. Predict the likelihood of customer churn with advanced analytics."""
     )
-    output = model.invoke(prompt.format(mail=mail, corrections=corrections))
-    return output
 
 
-def chat_mode(model):
-    # Function for interactive chat mode with a language model
-    chat_history = ChatMessageHistory()
+def generate_mails_page():
+    st.title("Generate promotional emails using pre-existing")
+    st.write("Welcome to the Mail Generation Service")
+    generate_emails()
 
-    # Initialize the chat messages in the session state
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
 
-    # Display existing chat messages
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+def chatbot_page():
+    st.title(
+        "Engage with the chatbot to gather insights and create contexts for personalized promotional emails."
+    )
+    st.write("Welcome to the Chatbot Service")
+    chat_mode(chatllm)
 
-    # Receive user input and add it to the chat history
-    prompt = st.chat_input("Enter your message:", key="chat_input")
-    if prompt:
-        chat_history.add_user_message(prompt)
-        st.chat_message("user").markdown(prompt)
-        st.session_state.messages.append({"role": "user", "content": prompt})
 
-        # Generate a response from the language model based on the chat history
-        response = model(chat_history.messages).content
-        chat_history.add_ai_message(response)
+def predict_churn_page():
+    st.title("Predict the likelihood of customer churn with advanced analytics.")
+    st.write("Welcome to the Churn Prediction Service")
+    churn_prediction()
 
-        # Display the assistant's response
-        with st.chat_message("assistant"):
-            st.markdown(response)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+
+def mail_revamp_page():
+    st.title("Revamp Your Mail")
+    st.write("Welcome to the Mail Revamp Service")
+    revamp()

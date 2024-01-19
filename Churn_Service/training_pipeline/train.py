@@ -2,6 +2,7 @@
 print("Importing Libraries")
 import json
 import pandas as pd
+from prefect import task, flow
 from sklearn.model_selection import train_test_split
 
 from model import evaluate_model, train_model, save_model
@@ -9,6 +10,7 @@ from metrics import save_metrics, save_predictions
 from constants import PROCESSED_DATASET, TARGET_COLUMN
 
 
+@task(name="Load data")
 def load_data(file_path):
     # Read the CSV file and split into features (X) and target variable (y)
     data = pd.read_csv(file_path)
@@ -17,6 +19,7 @@ def load_data(file_path):
     return X, y
 
 
+@flow(name="Training and Model Evaluation")
 def main():
     # Load the processed dataset and split into train and test sets
     X, y = load_data(PROCESSED_DATASET)

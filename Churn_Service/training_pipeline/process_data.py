@@ -7,8 +7,10 @@ from constants import (
     PROCESSED_DATASET,
     DROP_COLUMNS,
 )
+from prefect import task, flow
 
 # Load data
+@task(name="Load Data")
 def read_dataset(filepath: str, drop_cols: List):
 
     dataframe = pd.read_csv(filepath)
@@ -23,6 +25,7 @@ def read_dataset(filepath: str, drop_cols: List):
 
 
 # Prepare Data
+@task(name="Process Data")
 def prepare_dataset(dataframe: pd.DataFrame):
 
     dataframe = dataframe[dataframe["totalcharges"] != "_"]
@@ -33,6 +36,7 @@ def prepare_dataset(dataframe: pd.DataFrame):
     return dataframe
 
 
+@flow(name="Data Processing")
 def main():
     churn_data = read_dataset(filepath=RAW_DATASET, drop_cols=DROP_COLUMNS)
     churn_data = prepare_dataset(churn_data)

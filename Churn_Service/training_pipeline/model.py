@@ -6,6 +6,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from constants import MODEL_PATH
+from prefect import task
 
 # Define Model Evaluation Metrics
 def eval_metrics(y_true, prediction):
@@ -21,6 +22,7 @@ def eval_metrics(y_true, prediction):
 
 
 # Define Model Training Function
+@task(name="Train model")
 def train_model(train_x, train_y, c_value=71):
 
     train_x = train_x.to_dict(orient="records")
@@ -36,6 +38,7 @@ def train_model(train_x, train_y, c_value=71):
 
 
 # Define Model Evaluation Function
+@task(name="Evaluate Model")
 def evaluate_model(model, X_test, y_test, float_precision=4):
 
     X_test = X_test.to_dict(orient="records")
@@ -50,6 +53,7 @@ def evaluate_model(model, X_test, y_test, float_precision=4):
 
 
 # Define Model Saving Function
+@task(name="Save Model")
 def save_model(model):
 
     if not os.path.exists(os.path.dirname(MODEL_PATH)):

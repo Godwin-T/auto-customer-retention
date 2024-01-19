@@ -4,6 +4,7 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from prefect import task
 from sklearn.metrics import ConfusionMatrixDisplay, roc_curve
 from constants import METRICS_PATH, PREDICTIONS_PATH, ROC_CURVE_PATH
 
@@ -13,6 +14,7 @@ def plot_confusion_matrix(model, X_test, y_test):
     plt.savefig("confusion_matrix.png")
 
 
+@task(name="Metrics Saving")
 def save_metrics(metrics):
 
     if not os.path.exists(os.path.dirname(METRICS_PATH)):
@@ -22,6 +24,7 @@ def save_metrics(metrics):
         json.dump(metrics, json_file)
 
 
+@task(name="Save Prediction")
 def save_predictions(y_test, y_pred):
     # Store predictions data for confusion matrix
     cdf = pd.DataFrame(

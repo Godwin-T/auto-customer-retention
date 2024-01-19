@@ -10,14 +10,8 @@ RUN pip install -r requirements.txt
 
 COPY ["app.py", "utils.py" , "./"]
 
-VOLUME /home/models
-
 EXPOSE 9696
 
+VOLUME /home/models
+
 ENTRYPOINT [ "gunicorn", "--bind=0.0.0.0:9696", "app:app" ]
-
-#WORKDIR /home/godwin/Documents/Workflow/Churn-Prediction-in-a-Telecom-Company
-
-#COPY "requirements.txt" /app/
-
-#RUN pip install -r /app/requirements.txt

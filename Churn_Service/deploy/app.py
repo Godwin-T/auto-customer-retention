@@ -1,23 +1,23 @@
 # import mlflow
 import pickle
 import pandas as pd
-from utils import MODEL_PATH
+from utils import BUCKETNAME, OBJECTNAME
 from flask import Flask, request, jsonify
 from prefect import task, flow
+import boto3
 
 
-# from pymongo import MongoClient
+# @task
+def load_model(bucket_name, file_name):
 
-
-@task
-def load_model(model_path):
-
-    with open(model_path, "rb") as f:
-        model = pickle.load(f)
+    s3 = boto3.client("s3")
+    obj = s3.get_object(Bucket=bucket_name, Key=file_name)
+    model = obj["Body"].read()
+    model = pickle.loads(model)
     return model
 
 
-@task
+# @task
 def prepare_data(data):
 
     data = pd.DataFrame(data)
@@ -33,7 +33,7 @@ def prepare_data(data):
     return customer_id, data
 
 
-@task
+# @task
 def prepare_output(customer_id, prediction):
 
     dicts = {"customerid": customer_id, "churn": prediction}
@@ -54,11 +54,11 @@ app = Flask("Churn")
 
 
 @app.route("/predict", methods=["POST"])
-@flow
+# @flow
 def predict():
 
     data = request.get_json()
-    model = load_model(MODEL_PATH)
+    model = load_model(BUCKETNAME, OBJECTNAME)
 
     customer_id, record = prepare_data(data)
     record = record.to_dict(orient="records")

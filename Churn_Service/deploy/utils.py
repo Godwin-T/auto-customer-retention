@@ -7,7 +7,9 @@ MONGODB_ADDRESS = os.getenv("MONGODB_ADDRESS", "mongodb://127.0.0.1:27017")
 
 MODEL_NAME = "Custormer-churn-models"
 MODEL_STAGE = "Production"
-MODEL_PATH = "./models/churn_model.pkl"
+
+BUCKETNAME = "newchurnbucket"
+OBJECTNAME = "churn_model.pkl"
 
 MLFLOW_TRACKING_URI = f"sqlite:///{CHILD_DIR}/mlflow.db"
 

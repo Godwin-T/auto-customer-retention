@@ -6,3 +6,4 @@ uuid
 numpy
 GUNICORN
 prefect
+boto3

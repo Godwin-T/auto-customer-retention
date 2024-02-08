@@ -12,6 +12,4 @@ COPY ["app.py", "utils.py" , "./"]
 
 EXPOSE 9696
 
-VOLUME /home/models
-
 ENTRYPOINT [ "gunicorn", "--bind=0.0.0.0:9696", "app:app" ]

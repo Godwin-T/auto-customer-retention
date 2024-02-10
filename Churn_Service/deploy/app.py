@@ -1,4 +1,5 @@
 # import mlflow
+import os
 import pickle
 import pandas as pd
 from utils import BUCKETNAME, OBJECTNAME
@@ -10,7 +11,11 @@ import boto3
 # @task
 def load_model(bucket_name, file_name):
 
-    s3 = boto3.client("s3")
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=os.environ["AWS_SERVER_PUBLIC_KEY"],
+        aws_secret_access_key=os.environ["AWS_SERVER_SECRET_KEY"],
+    )
     obj = s3.get_object(Bucket=bucket_name, Key=file_name)
     model = obj["Body"].read()
     model = pickle.loads(model)

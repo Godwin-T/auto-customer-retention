@@ -21,7 +21,10 @@ warnings.filterwarnings("ignore")
 
 
 # Set Mlflow
-mlflow.set_tracking_uri("sqlite:///mlflow.db")
+# mlflow.set_tracking_uri("sqlite:///mlflow.db")
+mlflow.set_tracking_uri(
+    "postgresql://postgres:FreshCodes_24@database-1.cr2yywcw2j88.eu-north-1.rds.amazonaws.com:5432"
+)
 mlflow.set_experiment("Customer_Churn_Predictions")
 
 # Linear Regression Model

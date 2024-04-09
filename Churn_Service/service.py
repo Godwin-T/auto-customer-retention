@@ -24,3 +24,10 @@ def predict_churn(url: str, data_path):
 
     # Return the DataFrame containing customer IDs and churn predictions
     return output_frame
+
+
+# url = 'http://16.170.248.241:9696/predict'
+# data_path = './data/raw_data/Telco-Customer-Churn.csv'
+# if __name__ == "__main__":
+#     df = predict_churn(url, data_path)
+#     print(df.shape)

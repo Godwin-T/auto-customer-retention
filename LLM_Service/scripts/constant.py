@@ -1,5 +1,5 @@
-RAW_DATAPATH = "../raw_data/"
-DATA_PATH = "../processed_data/mails.csv"
+RAW_DATAPATH = "../data/raw_data/"
+DATA_PATH = "../data/processed_data/mails.csv"
 MODEL_NAME = "text-davinci-003"
 
 API_KEY = ""

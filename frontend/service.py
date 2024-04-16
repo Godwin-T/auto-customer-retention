@@ -6,27 +6,10 @@ from langchain.chat_models import ChatOpenAI
 from Churn_Service.training_pipeline.constants import PREDICTION_URL
 from Churn_Service.service import predict_churn
 from LLM_Service.scripts.constant import API_KEY, COMPLETION_MODEL_NAME
-from LLM_Service.scripts.utils import mail_generation, mail_revamp, chat_mode
+from LLM_Service.scripts.utils import mail_generation
 
 chatllm = ChatOpenAI(temperature=0.5, openai_api_key=API_KEY)
 model = OpenAI(model=COMPLETION_MODEL_NAME, temperature=0.5, openai_api_key=API_KEY)
-
-
-def revamp(mail=None):
-
-    if mail is None:
-        st.write(mail)
-        mail = st.text_input("Enter the mail to be revamped")
-
-    revamp_details = st.text_input("Enter corrections to be made")
-
-    if st.button("Revamp"):
-        if mail and revamp_details:
-            mail = mail_revamp(model, mail, revamp_details)
-            st.write(mail)
-            return mail
-        else:
-            st.warning("Give the required information")
 
 
 def churn_prediction():
@@ -45,17 +28,8 @@ def churn_prediction():
 
 
 def generate_emails():
-    st.subheader("Generate promotional emails using pre-existing")
-    context = st.text_input("Enter mail context")
-
-    if st.button("Generate"):
-        if context:
-            mail = mail_generation(model, context)
-            st.write(mail)
-            print(mail)
-            return mail
-        else:
-            st.warning("Please enter a mail context before generating.")
+    st.subheader("Generate Promotional Mail")
+    mail_generation(chatllm)
 
 
 def homepage():
@@ -79,21 +53,7 @@ def generate_mails_page():
     generate_emails()
 
 
-def chatbot_page():
-    st.title(
-        "Engage with the chatbot to gather insights and create contexts for personalized promotional emails."
-    )
-    st.write("Welcome to the Chatbot Service")
-    chat_mode(chatllm)
-
-
 def predict_churn_page():
     st.title("Predict the likelihood of customer churn with advanced analytics.")
     st.write("Welcome to the Churn Prediction Service")
     churn_prediction()
-
-
-def mail_revamp_page():
-    st.title("Revamp Your Mail")
-    st.write("Welcome to the Mail Revamp Service")
-    revamp()

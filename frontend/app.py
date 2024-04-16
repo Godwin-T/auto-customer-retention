@@ -7,27 +7,25 @@ import streamlit as st
 from frontend.service import (
     homepage,
     generate_mails_page,
-    chatbot_page,
     predict_churn_page,
-    mail_revamp_page,
 )
 
 
 def main():
     st.sidebar.title("Navigation")
-    page_options = ["Home", "Generate Mail", "Chatbot", "Predict Churn", "Revamp Mail"]
+    page_options = [
+        "Home",
+        "Mail Service",
+        "Predict Churn",
+    ]
     selected_page = st.sidebar.radio("Select a service", page_options)
 
     if selected_page == "Home":
         homepage()
-    if selected_page == "Generate Mail":
+    if selected_page == "Mail Service":
         generate_mails_page()
-    elif selected_page == "Chatbot":
-        chatbot_page()
     elif selected_page == "Predict Churn":
         predict_churn_page()
-    elif selected_page == "Revamp Mail":
-        mail_revamp_page()
 
 
 # Run the Streamlit app

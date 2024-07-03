@@ -5,15 +5,24 @@ import pandas as pd
 from prefect import task, flow
 from sklearn.model_selection import train_test_split
 
-from model import evaluate_model, train_model, save_model
-from metrics import save_metrics, save_predictions
-from constants import PROCESSED_DATASET, TARGET_COLUMN
+from trainhelpers import evaluate_model, train_model, save_model
+from utils import (
+    save_metrics,
+    save_predictions,
+    PROCESSED_DATASET,
+    TARGET_COLUMN,
+    DB_DIRECTORY,
+    DB_NAME,
+    PROCESSED_DATASET_NAME,
+)
+from datahelper import load_data
 
 
 @task(name="Load data")
-def load_data(file_path):
+def load_data_from_db(db_dir, db_name, table_name):
     # Read the CSV file and split into features (X) and target variable (y)
-    data = pd.read_csv(file_path)
+    # data = pd.read_csv(file_path)
+    data = load_data(db_dir, db_name, table_name)
     X = data.drop(TARGET_COLUMN, axis=1)
     y = data[TARGET_COLUMN]
     return X, y
@@ -22,7 +31,8 @@ def load_data(file_path):
 @flow(name="Training and Model Evaluation")
 def main():
     # Load the processed dataset and split into train and test sets
-    X, y = load_data(PROCESSED_DATASET)
+    # X, y = load_data_from_db(PROCESSED_DATASET)
+    X, y = load_data_from_db(DB_DIRECTORY, DB_NAME, PROCESSED_DATASET_NAME)
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1993)
 
     # Train the model and get the evaluation results on the training set
@@ -49,8 +59,8 @@ def main():
     print("======================================================")
 
     # Save the overall model evaluation results, test set predictions, and the trained model
-    save_metrics(model_evaluation_result)
-    save_predictions(y_test, y_pred)
+    # save_metrics(model_evaluation_result)
+    # save_predictions(y_test, y_pred)
     save_model(model)
 
 

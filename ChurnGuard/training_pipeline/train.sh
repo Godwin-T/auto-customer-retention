@@ -4,8 +4,8 @@
 HOST_RAW_DATASET="$(pwd)/../data/churn-data/raw_data/Telco-Customer-Churn.csv"
 CONTAINER_RAW_DATASET="/home/data/raw_data/Churn.csv"
 
-HOST_MODEL_DATABASE="$(pwd)/../../databases/mlflow.db"
-CONTAINER_MODEL_DATABASE="/home/databases/mlflow.db"
+HOST_MODEL_DATABASE="$(pwd)/../../databases/"
+CONTAINER_MODEL_DATABASE="/home/databases/"
 
 HOST_DATA_DATABASE="$(pwd)/../../databases/"
 CONTAINER_DATA_DATABASE="/home/databases/"

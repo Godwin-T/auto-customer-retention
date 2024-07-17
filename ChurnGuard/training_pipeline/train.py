@@ -1,9 +1,13 @@
 # Importing Libraries
 print("Importing Libraries")
 import json
+import time
+import mlflow
 import pandas as pd
 from prefect import task, flow
 from sklearn.model_selection import train_test_split
+from mlflow.tracking import MlflowClient
+from mlflow.entities import ViewType
 
 from modelhelper import evaluate_model, train_model, save_model
 from utils import (
@@ -62,6 +66,27 @@ def main():
     # save_metrics(model_evaluation_result)
     # save_predictions(y_test, y_pred)
     save_model(model)
+
+    MLFLOW_TRACKING_URI = "sqlite:////home/databases/mlflow.db"
+    client = MlflowClient(tracking_uri=MLFLOW_TRACKING_URI)
+    runs = client.search_runs(
+        experiment_ids="1",
+        filter_string="metrics.f1_score >0.59",
+        run_view_type=ViewType.ACTIVE_ONLY,
+        max_results=1,
+        order_by=["metrics.f1_score ASC"],
+    )[0]
+
+    run_id = runs.info.run_id
+    model_uri = f"runs:/{run_id}/model"
+    mlflow.register_model(model_uri=model_uri, name="Custormer-churn-models")
+
+    print("=================================")
+
+    # # running loop from 0 to 4
+    # for i in range(0,5):
+    #     # adding 2 seconds time delay
+    #     time.sleep(20000)
 
 
 if __name__ == "__main__":

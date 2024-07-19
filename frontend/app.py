@@ -4,7 +4,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import streamlit as st
-from frontend.service import (
+from helperfunctions import (
     homepage,
     generate_mails_page,
     predict_churn_page,

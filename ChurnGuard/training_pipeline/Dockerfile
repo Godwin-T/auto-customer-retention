@@ -10,6 +10,8 @@ RUN pip install -r requirements.txt
 
 COPY . /home/
 
+RUN mkdir -p /home/databases && chmod -R 777 /home/databases
+
 RUN chmod +x /home/run.sh
 
 ENTRYPOINT [ "/home/run.sh"]

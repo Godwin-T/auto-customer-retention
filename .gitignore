@@ -1,0 +1,6 @@
+**/mlruns
+**/databases
+**/__pycache__/
+**/models
+**/data
+**/tmp

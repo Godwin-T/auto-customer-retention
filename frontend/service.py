@@ -12,6 +12,23 @@ chatllm = ChatOpenAI(temperature=0.5, openai_api_key=API_KEY)
 model = OpenAI(model=COMPLETION_MODEL_NAME, temperature=0.5, openai_api_key=API_KEY)
 
 
+def revamp(mail=None):
+
+    if mail is None:
+        st.write(mail)
+        mail = st.text_input("Enter the mail to be revamped")
+
+    revamp_details = st.text_input("Enter corrections to be made")
+
+    if st.button("Revamp"):
+        if mail and revamp_details:
+            mail = mail_revamp(model, mail, revamp_details)
+            st.write(mail)
+            return mail
+        else:
+            st.warning("Give the required information")
+
+
 def churn_prediction():
 
     st.subheader("Predict the likelihood of customer churn with advanced analytics.")

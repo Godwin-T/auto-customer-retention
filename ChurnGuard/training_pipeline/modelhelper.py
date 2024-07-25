@@ -55,7 +55,7 @@ def train_model(
         evaluation_result = eval_metrics(train_y, prediction)
 
         mlflow.log_metrics(evaluation_result)
-        mlflow.sklearn.log_model(lr_pipeline, artifact_path="models_mlflow")
+        mlflow.sklearn.log_model(lr_pipeline, artifact_path="model")
 
     return lr_pipeline, evaluation_result
 

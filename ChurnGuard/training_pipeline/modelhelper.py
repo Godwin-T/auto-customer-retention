@@ -32,9 +32,10 @@ def train_model(
     train_y,
     c_value=71,
     experiment_name="Customer_Churn_Predictions",
-    tracking_uri="sqlite:////home/databases/mlflow.db",
+    tracking_uri="http://mlflow:5000",  # "sqlite:////home/databases/mlflow.db",
 ):
 
+    tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://mlflow:5000")
     mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment(experiment_name)
 
@@ -55,7 +56,11 @@ def train_model(
         evaluation_result = eval_metrics(train_y, prediction)
 
         mlflow.log_metrics(evaluation_result)
+        # artifact_path="/home/databases/artifacts"
+        # os.makedirs(artifact_path, exist_ok=True)
         mlflow.sklearn.log_model(lr_pipeline, artifact_path="model")
+        artifact_uri = mlflow.get_artifact_uri()
+        print(f"Artifact uri: {artifact_uri}")
 
     return lr_pipeline, evaluation_result
 

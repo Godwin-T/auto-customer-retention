@@ -67,7 +67,7 @@ def main():
     # save_predictions(y_test, y_pred)
     save_model(model)
 
-    MLFLOW_TRACKING_URI = "sqlite:////home/databases/mlflow.db"
+    MLFLOW_TRACKING_URI = "http://mlflow:5000"  # "sqlite:////home/databases/mlflow.db"
     client = MlflowClient(tracking_uri=MLFLOW_TRACKING_URI)
     runs = client.search_runs(
         experiment_ids="1",
@@ -83,11 +83,10 @@ def main():
 
     print("=================================")
 
+
+if __name__ == "__main__":
+    main()
     # # running loop from 0 to 4
     # for i in range(0,5):
     #     # adding 2 seconds time delay
     #     time.sleep(20000)
-
-
-if __name__ == "__main__":
-    main()

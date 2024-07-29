@@ -2,11 +2,21 @@
 import os
 import boto3
 import pickle
+import mlflow
 from datetime import datetime
 import pandas as pd
 from prefect import task, flow
 from flask import Flask, request, jsonify
-from utils import MODEL_PATH, DB_DIRECTORY, DB_NAME, DF_NAME, save_df
+from utils import (
+    MODEL_PATH,
+    DB_DIRECTORY,
+    DB_NAME,
+    DF_NAME,
+    save_df,
+    MLFLOW_TRACKING_URI,
+    MODEL_NAME,
+    MODEL_STAGE,
+)
 
 
 # @task
@@ -23,10 +33,12 @@ def load_aws_model(bucket_name, file_name):
     return model
 
 
-def load_model(model_path):
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
-    with open(model_path, "rb") as f_in:
-        model = pickle.load(f_in)
+
+def load_model(model_name, model_stage="Production"):
+
+    model = mlflow.pyfunc.load_model(model_uri=f"models:/{model_name}/{model_stage}")
     return model
 
 
@@ -74,7 +86,7 @@ app = Flask("Churn")
 def predict():
 
     data = request.get_json()
-    model = load_model(MODEL_PATH)
+    model = load_model(MODEL_NAME, MODEL_STAGE)
 
     customer_id, record = prepare_data(data)
     record = record.to_dict(orient="records")

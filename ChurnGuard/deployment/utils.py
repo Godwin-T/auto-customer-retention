@@ -7,6 +7,7 @@ import pandas as pd
 CHILD_DIR = os.getcwd()
 EVIDENTLY_SERVICE_ADDRESS = os.getenv("EVIDENTLY_SERVICE", "http://127.0.0.1:5000")
 MONGODB_ADDRESS = os.getenv("MONGODB_ADDRESS", "mongodb://127.0.0.1:27017")
+MLFLOW_TRACKING_URI = "http://mlflow:5000"
 
 MODEL_NAME = "Custormer-churn-models"
 MODEL_STAGE = "Production"

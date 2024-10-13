@@ -24,6 +24,9 @@ def connect_bucket(access_key_id, access_secret_key):
 # @task
 def load_model_from_s3(s3_bucket, bucket_name, file_name):
 
+    print(s3_bucket)
+    print(bucket_name)
+    print(bucket_name)
     obj = s3_bucket.get_object(Bucket=bucket_name, Key=file_name)
     model = obj["Body"].read()
     model = pickle.loads(model)

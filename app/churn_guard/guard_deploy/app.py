@@ -12,7 +12,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def connect_bucket(access_key_id, access_secret_key):
+def connect_bucket(
+    access_key_id=os.getenv("AWS_SERVER_PUBLIC_KEY"),
+    access_secret_key=os.getenv("AWS_SERVER_SECRET_KEY"),
+):
 
     s3_bucket = boto3.client(
         "s3", aws_access_key_id=access_key_id, aws_secret_access_key=access_secret_key
@@ -22,7 +25,9 @@ def connect_bucket(access_key_id, access_secret_key):
 
 
 # @task
-def load_model_from_s3(s3_bucket, bucket_name, file_name):
+def load_model_from_s3(
+    s3_bucket, bucket_name=os.getenv("BUCKETNAME"), file_name=os.getenv("OBJECTNAME")
+):
 
     print(s3_bucket)
     print(bucket_name)
@@ -81,13 +86,8 @@ def upload_prediction_to_s3(s3_bucket, local_file_path, bucket_name, s3_object_n
     return "Object saved successfully"
 
 
-access_key_id = os.getenv("AWS_SERVER_PUBLIC_KEY")
-access_secret_key = os.getenv("AWS_SERVER_SECRET_KEY")
-bucket_name = os.getenv("BUCKETNAME")
-object_name = os.getenv("OBJECTNAME")
-
-s3_bucket = connect_bucket(access_key_id, access_secret_key)
-model = load_model_from_s3(s3_bucket, bucket_name, object_name)
+s3_bucket = connect_bucket()
+model = load_model_from_s3(s3_bucket)
 
 
 app = Flask("Churn")

@@ -1,0 +1,11 @@
+**/mlruns
+**/databases
+**/__pycache__/
+**/models
+**/data
+**/tmp
+**.env
+**.dockerignore
+**.pytest_cache
+pytest.ini
+.pre-commit-config.yaml

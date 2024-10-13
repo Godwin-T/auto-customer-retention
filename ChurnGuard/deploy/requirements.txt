@@ -1,9 +1,0 @@
-mlflow
-flask
-pymongo
-pandas
-uuid
-numpy
-GUNICORN
-prefect
-boto3

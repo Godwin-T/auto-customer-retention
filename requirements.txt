@@ -1,0 +1,5 @@
+pandas
+sqlite3
+scikit-learn
+boto3
+moto

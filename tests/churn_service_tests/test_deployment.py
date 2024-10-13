@@ -142,7 +142,9 @@ def test_load_model_from_s3_moto():
     s3.put_object(Bucket="test-bucket", Key="model.pkl", Body=pickle.dumps(model))
 
     # Call the function that loads the model from S3
-    loaded_model = load_model_from_s3(s3, "test-bucket", "model.pkl")
+    loaded_model = load_model_from_s3(
+        s3, bucket_name="test-bucket", file_name="model.pkl"
+    )
 
     # Assert the model was loaded correctly
     assert loaded_model == model, "Model not loading properly"

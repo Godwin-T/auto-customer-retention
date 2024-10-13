@@ -1,5 +1,5 @@
 pandas
-sqlite3
+db-sqlite3
 scikit-learn
 boto3
 moto

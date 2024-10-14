@@ -6,5 +6,3 @@ moto
 prefect
 mlflow
 pymongo
-flask==2.2.2
-Werkzeug==2.0.3

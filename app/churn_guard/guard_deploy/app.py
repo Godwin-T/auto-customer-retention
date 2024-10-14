@@ -104,6 +104,9 @@ def initialize_resources():
         )  # Load model from S3 once
 
 
+resources_initialized = False
+
+
 @app.before_request
 def check_resources():
     global resources_initialized

@@ -31,7 +31,7 @@ model_name = "Custormer-churn-models"
 
 
 # @task(name="Load data")
-def process_data(data):
+def process_data(data, target_column):
 
     # Load data
     X = data.drop(target_column, axis=1)
@@ -50,7 +50,7 @@ def training_pipeline():
     )
 
     data = load_data_from_sqlite_db(db_dir, db_name, processed_dataset_name)
-    X, y = process_data(data)
+    X, y = process_data(data, target_column)
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1993)
 
     model, train_eval_result = train_model(

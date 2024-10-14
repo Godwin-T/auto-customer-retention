@@ -6,3 +6,4 @@ numpy
 prefect
 boto3
 python-dotenv
+Werkzeug==2.0.3

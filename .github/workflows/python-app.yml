@@ -36,8 +36,8 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
-    - name: List files in the directory
-      run: ls -R 
+    - name: Verify directory contents
+      run: ls -R ./app/churn_guard/guard_deploy/
 
   docker:
     runs-on: ubuntu-latest

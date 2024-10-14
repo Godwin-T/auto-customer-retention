@@ -31,7 +31,7 @@ def load_dataset(filepath: str):
 
 # Prepare Data
 # @task(name="Process Data")
-def process_dataset(dataframe: pd.DataFrame, drop_cols=None):
+def process_dataset(dataframe: pd.DataFrame, target_column_name, drop_cols=None):
 
     dataframe.columns = dataframe.columns.str.replace(" ", "_").str.lower()
 
@@ -55,7 +55,7 @@ def main():
         db_dir, db_name, raw_dataset_name, data=input_data
     )  # Save raw data to database
 
-    churn_data = process_dataset(churn_data, drop_cols=drop_columns)
+    churn_data = process_dataset(churn_data, target_column_name, drop_cols=drop_columns)
     save_dataframe(
         db_dir, db_name, processed_dataset_name, data=churn_data
     )  # Save processes data to datebase

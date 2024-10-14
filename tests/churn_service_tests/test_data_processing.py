@@ -15,7 +15,7 @@ def test_process_dataset():
 
     input_data_path = "./sample_data/raw_data.csv"
     data = load_dataset(input_data_path)
-    output_data = process_dataset(data)
+    output_data = process_dataset(data, target_column_name="churn")
 
     assert isinstance(output_data, pd.DataFrame)
     assert output_data["churn"].dtype == "int"

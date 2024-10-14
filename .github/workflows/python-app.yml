@@ -36,6 +36,8 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
+    - name: List files in the directory
+      run: ls -R 
 
   docker:
     runs-on: ubuntu-latest

@@ -104,10 +104,12 @@ def initialize_resources():
         )  # Load model from S3 once
 
 
-@app.before_first_request
-def load_resources():
-    """This runs once before the first request is handled by the app."""
-    initialize_resources()
+@app.before_request
+def check_resources():
+    global resources_initialized
+    if not resources_initialized:
+        initialize_resources()
+        resources_initialized = True
 
 
 @app.route("/predict", methods=["POST"])

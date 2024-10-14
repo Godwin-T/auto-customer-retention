@@ -53,6 +53,6 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: app/churn_guard/guard_deploy
+          context: ./app/churn_guard/guard_deploy
           push: true
           tags: user/app:latest

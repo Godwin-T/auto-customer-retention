@@ -25,9 +25,7 @@ def connect_bucket(
 
 
 # @task
-def load_model_from_s3(
-    s3_bucket, bucket_name=os.getenv("BUCKETNAME"), file_name=os.getenv("OBJECTNAME")
-):
+def load_model_from_s3(s3_bucket, bucket_name, file_name):
 
     print(s3_bucket)
     print(bucket_name)
@@ -86,11 +84,30 @@ def upload_prediction_to_s3(s3_bucket, local_file_path, bucket_name, s3_object_n
     return "Object saved successfully"
 
 
-s3_bucket = connect_bucket()
-model = load_model_from_s3(s3_bucket)
+bucket_name = os.getenv("BUCKETNAME")
+file_name = os.getenv("OBJECTNAME")
+s3_bucket = None
+model = None
 
 
 app = Flask("Churn")
+
+
+def initialize_resources():
+    """Initializes model and S3 bucket connection once when the app starts."""
+    global s3_bucket, model
+    if not s3_bucket:
+        s3_bucket = connect_bucket()  # Connect to S3 bucket once
+    if not model:
+        model = load_model_from_s3(
+            s3_bucket, bucket_name, file_name
+        )  # Load model from S3 once
+
+
+@app.before_first_request
+def load_resources():
+    """This runs once before the first request is handled by the app."""
+    initialize_resources()
 
 
 @app.route("/predict", methods=["POST"])

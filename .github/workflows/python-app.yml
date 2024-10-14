@@ -56,3 +56,8 @@ jobs:
           context: ./app/churn_guard/guard_deploy
           push: true
           tags: user/app:latest
+          build-args: |
+            BUCKET_NAME=${{ secrets.BUCKET_NAME }}
+            AWS_SERVER_PUBLIC_KEY=${{ secrets.AWS_SERVER_PUBLIC_KEY }}
+            AWS_SERVER_SECRET_KEY=${{ secrets.AWS_SERVER_SECRET_KEY }}
+            OBJECTNAME=${{ secrets.OBJECTNAME }}

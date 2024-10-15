@@ -10,9 +10,9 @@ from mlflow.entities import ViewType
 from mlflow.tracking import MlflowClient
 from sklearn.model_selection import train_test_split
 
-from app.churn_guard.utils.datahelper import load_data_from_sqlite_db
 from app.churn_guard.utils.evaluate import evaluate_model
 from app.churn_guard.utils.modelhelper import train_model, save_model
+from app.churn_guard.utils.datahelper import load_data_from_relational_db
 
 load_dotenv()
 
@@ -49,7 +49,9 @@ def training_pipeline():
         "=================================Starting Model Training================================================="
     )
 
-    data = load_data_from_sqlite_db(db_dir, db_name, processed_dataset_name)
+    data = load_data_from_relational_db(
+        dbprovider="mysql", tablename=processed_dataset_name
+    )
     X, y = process_data(data, target_column)
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1993)
 

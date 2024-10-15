@@ -6,14 +6,15 @@ from typing import List
 from pymongo import MongoClient
 from datetime import datetime
 from sqlalchemy import create_engine
+from dotenv import load_dotenv
 
 try:
 
-    customer_dbname = "Customerdb"
-    mysql_username = "Fresh"
-    mysql_password = "#Freshcodes24"
+    dbname = os.getenv("DBNAME")
+    username = os.getenv("MYSWL_USERNAME")
+    password = os.getenv("MYSQL_PASSWORD")
     engine = create_engine(
-        f"mysql+mysqlconnector://{mysql_username}:{mysql_password}@localhost/{customer_dbname}"
+        f"mysql+mysqlconnector://{username}:{password}@localhost/{dbname}"
     )
 
 except:

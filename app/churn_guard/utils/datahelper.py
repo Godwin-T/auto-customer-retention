@@ -5,8 +5,13 @@ import pandas as pd
 from typing import List
 from pymongo import MongoClient
 from datetime import datetime
+from sqlalchemy import create_engine
 
-#
+customer_dbname = "Customerdb"
+mysql_username = "Fresh"
+mysql_password = "#Freshcodes24"
+
+
 def load_data_tomongo(path, dbname, dbcollection):
 
     client = MongoClient("localhost", "27017")
@@ -57,26 +62,35 @@ def create_df_table(dbname, tablename, dfpath):
     conn.close()
 
 
-def save_dataframe(db_directory, dbname, dfname, dfpath=None, data=None):
-
-    db_path = os.path.join(db_directory, dbname)
-    conn = sqlite3.connect(db_path)
+def save_dataframe(db_directory, dbname, tablename, dbprovider, dfpath=None, data=None):
 
     now = datetime.now()
     formatted_date = now.strftime("%d/%B/%Y")
 
     if dfpath:
 
-        df = pd.read_csv(dfpath)
-        df["date"] = formatted_date
-        df.to_sql(dfname, conn, if_exists="append", index=False)
+        data = pd.read_csv(dfpath)
+        data["date"] = formatted_date
+
+    else:
+        data["date"] = formatted_date
+
+    if dbprovider == "sqlite":
+
+        db_path = os.path.join(db_directory, dbname)
+        conn = sqlite3.connect(db_path)
+
+        data.to_sql(tablename, conn, if_exists="append", index=False)
+        conn.close()
 
     else:
 
-        data["date"] = formatted_date
-        data.to_sql(dfname, conn, if_exists="append", index=False)
-
-    conn.close()
+        # Create SQLAlchemy engine for MySQL
+        engine = create_engine(
+            f"mysql+mysqlconnector://{mysql_username}:{mysql_password}@localhost/{customer_dbname}"
+        )
+        # Save the DataFrame to MySQL
+        data.to_sql(name=tablename, con=engine, if_exists="append", index=False)
 
 
 def insert_record(dbname, tablename, record: tuple):

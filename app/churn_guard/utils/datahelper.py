@@ -31,7 +31,7 @@ def load_data_tomongo(path, dbname, dbcollection):
     print("Data imported successfully!")
 
 
-def load_data_from_mongo(dbname, dbcollection):
+def load_data_from_mongodb(dbname, dbcollection):
 
     client = MongoClient("localhost", "27017")
     db = client[dbname]
@@ -41,7 +41,7 @@ def load_data_from_mongo(dbname, dbcollection):
     return data
 
 
-def insert_collection(dbname, dbcollection, data):
+def insert_collection_to_mongbdb(dbname, dbcollection, data):
 
     client = MongoClient("localhost", 27017)
     db = client[dbname]

@@ -159,7 +159,9 @@ def load_data_from_mysql_db(sql_engine, tablename):
     return df
 
 
-def load_data_from_relational_db(db_directory, dbname, tablename, dbprovider="sqlite"):
+def load_data_from_relational_db(
+    tablename, dbprovider="sqlite", db_directory=None, dbname=None
+):
 
     if dbprovider == "sqlite":
 

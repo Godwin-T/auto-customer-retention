@@ -6,4 +6,4 @@ moto
 prefect
 mlflow
 pymongo
-mysql
+mysql-connector-python

@@ -3,7 +3,7 @@ import pandas as pd
 from typing import List
 from prefect import task, flow
 from dotenv import load_dotenv
-from app.churn_guard.utils.datahelper import save_dataframe
+from app.churn_guard.utils.datahelper import save_dataframe_to_relational_db
 
 load_dotenv()
 
@@ -51,14 +51,14 @@ def process_dataset(dataframe: pd.DataFrame, target_column_name, drop_cols=None)
 def main():
 
     input_data = load_dataset(filepath=raw_dataset_path)
-    save_dataframe(
-        db_dir, db_name, raw_dataset_name, dbprovider="mysql", data=input_data
-    )  # Save raw data to database
+    save_dataframe_to_relational_db(
+        tablename=raw_dataset_name, dbprovider="mysql", data=input_data
+    )
 
     churn_data = process_dataset(input_data, target_column_name, drop_cols=drop_columns)
-    save_dataframe(
-        db_dir, db_name, processed_dataset_name, dbprovider="mysql", data=churn_data
-    )  # Save processes data to datebase
+    save_dataframe_to_relational_db(
+        tablename=processed_dataset_name, dbprovider="mysql", data=churn_data
+    )
 
 
 # if __name__ == "__main__":

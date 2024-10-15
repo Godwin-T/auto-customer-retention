@@ -5,14 +5,23 @@ import shutil
 import sqlite3
 
 import pandas as pd
+import mysql.connector
 from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction import DictVectorizer
 
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine, Column, Integer, String
+
 from app.churn_guard.utils.evaluate import evaluate
 from app.churn_guard.utils.modelhelper import save_model
-from app.churn_guard.utils.datahelper import load_data_from_sqlite_db
 from app.churn_guard.train_pipeline.train import process_data
+from app.churn_guard.utils.datahelper import (
+    load_data_from_sqlite_db,
+    load_data_from_mysql_db,
+    create_mysql_database_table,
+)
 
 
 # Pytest fixture to create a temporary SQLite database
@@ -40,6 +49,33 @@ def temp_sqlite_db():
     yield tmpdir, "test.db", df
 
 
+@pytest.fixture(scope="session")
+def db_engine():
+    """Fixture to create a SQLAlchemy engine for an in-memory SQLite database."""
+    engine = create_engine("sqlite:///:memory:", echo=True)
+    yield engine
+    engine.dispose()
+
+
+@pytest.fixture(scope="function")
+def temp_mysql_db(db_engine):
+
+    engine = db_engine
+    input_df_path = "./sample_data/processed_data.csv"
+    input_df = pd.read_csv(input_df_path)
+
+    create_mysql_database_table(engine, input_df_path, tablename="test")
+    output_df = load_data_from_mysql_db(engine, tablename="test")
+
+    Session = sessionmaker(bind=db_engine)
+    session = Session()
+
+    session.commit()
+
+    yield session, output_df, input_df
+    session.close()
+
+
 # Test function for load_data_from_sqlite_db
 def test_load_data_from_sqlite_db(temp_sqlite_db):
     tmpdir, dbname, expected_df = temp_sqlite_db
@@ -51,6 +87,17 @@ def test_load_data_from_sqlite_db(temp_sqlite_db):
     # Assert that the DataFrame returned by the function matches the expected DataFrame
     pd.testing.assert_frame_equal(df, expected_df)
     shutil.rmtree(tmpdir)
+
+
+# Test function for load_data_from_sqlite_db
+def test_load_data_from_myql_db(temp_mysql_db):
+
+    _, output_df, expected_df = temp_mysql_db
+    output_df.drop(["log_time"], inplace=True, axis=1)
+
+    # Assert that the DataFrame returned by the function matches the expected DataFrame
+
+    pd.testing.assert_frame_equal(output_df, expected_df)
 
 
 def test_process_data():

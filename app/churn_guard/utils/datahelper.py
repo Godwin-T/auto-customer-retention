@@ -7,9 +7,17 @@ from pymongo import MongoClient
 from datetime import datetime
 from sqlalchemy import create_engine
 
-customer_dbname = "Customerdb"
-mysql_username = "Fresh"
-mysql_password = "#Freshcodes24"
+try:
+
+    customer_dbname = "Customerdb"
+    mysql_username = "Fresh"
+    mysql_password = "#Freshcodes24"
+    engine = create_engine(
+        f"mysql+mysqlconnector://{mysql_username}:{mysql_password}@localhost/{customer_dbname}"
+    )
+
+except:
+    """"""
 
 
 def load_data_tomongo(path, dbname, dbcollection):
@@ -51,18 +59,7 @@ def insert_collection_to_mongbdb(dbname, dbcollection, data):
     collection.update_one({}, update)
 
 
-def create_df_table(dbname, tablename, dfpath):
-
-    conn = sqlite3.connect(dbname)
-
-    df = pd.read_csv(dfpath)
-    df["log_time"] = time.time()
-
-    df.to_sql(tablename, conn, if_exists="fail", index=False)
-    conn.close()
-
-
-def save_dataframe(db_directory, dbname, tablename, dbprovider, dfpath=None, data=None):
+def save_dataframe_to_sqlite(db_directory, dbname, tablename, dfpath=None, data=None):
 
     now = datetime.now()
     formatted_date = now.strftime("%d/%B/%Y")
@@ -75,22 +72,41 @@ def save_dataframe(db_directory, dbname, tablename, dbprovider, dfpath=None, dat
     else:
         data["date"] = formatted_date
 
+    db_path = os.path.join(db_directory, dbname)
+    conn = sqlite3.connect(db_path)
+
+    data.to_sql(tablename, conn, if_exists="append", index=False)
+    conn.close()
+
+
+def save_dataframe_to_mysql(sql_engine, tablename, dfpath=None, data=None):
+
+    now = datetime.now()
+    formatted_date = now.strftime("%d/%B/%Y")
+
+    if dfpath:
+
+        data = pd.read_csv(dfpath)
+        data["date"] = formatted_date
+
+    else:
+        data["date"] = formatted_date
+
+    # Save the DataFrame to MySQL
+    data.to_sql(name=tablename, con=sql_engine, if_exists="append", index=False)
+
+
+def save_dataframe_to_relational_db(
+    tablename, dbprovider, db_directory=None, dbname=None, df_path=None, data=None
+):
+
     if dbprovider == "sqlite":
 
-        db_path = os.path.join(db_directory, dbname)
-        conn = sqlite3.connect(db_path)
-
-        data.to_sql(tablename, conn, if_exists="append", index=False)
-        conn.close()
+        save_dataframe_to_sqlite(db_directory, dbname, tablename, df_path, data)
 
     else:
 
-        # Create SQLAlchemy engine for MySQL
-        engine = create_engine(
-            f"mysql+mysqlconnector://{mysql_username}:{mysql_password}@localhost/{customer_dbname}"
-        )
-        # Save the DataFrame to MySQL
-        data.to_sql(name=tablename, con=engine, if_exists="append", index=False)
+        save_dataframe_to_mysql(engine, tablename, df_path, data)
 
 
 def insert_record(dbname, tablename, record: tuple):
@@ -103,46 +119,38 @@ def insert_record(dbname, tablename, record: tuple):
     conn.close()
 
 
-def create_database_table(datapath, dbname, tablename):
+def create_sqlite_database_table(dbname, tablename, dfpath):
 
-    conn = sqlite3.connect(dbname)
-    cursor = conn.cursor()
-
-    df = pd.read_csv(datapath)
+    df = pd.read_csv(dfpath)
     df["log_time"] = time.time()
 
-    column_dict = {}
-
-    categorical_col = df.dtypes[df.dtypes == "object"].index.tolist()
-    categorical_col = {col: "text" for col in categorical_col}
-    column_dict.update(categorical_col)
-
-    int_col = df.dtypes[df.dtypes == "int64"].index.tolist()
-    int_col = {col: "int" for col in int_col}
-    column_dict.update(int_col)
-
-    float_col = df.dtypes[df.dtypes == "float64"].index.tolist()
-    float_col = {col: "real" for col in float_col}
-    column_dict.update(float_col)
-
-    columns_str = ", ".join(
-        [f"{col_name} {data_type}" for col_name, data_type in column_dict.items()]
-    )
-
-    cursor.execute(f"CREATE TABLE {tablename} ({columns_str})")
-
-    conn.commit()
+    conn = sqlite3.connect(dbname)
+    df.to_sql(tablename, conn, if_exists="fail", index=False)
     conn.close()
 
 
-def load_data_from_sqlite_db(db_directory, dbname, tablename, filter_str=None):
+def create_mysql_database_table(sql_engine, dfpath, tablename):
+
+    df = pd.read_csv(dfpath)
+    df["log_time"] = time.time()
+    # Save the DataFrame to MySQL
+    df.to_sql(name=tablename, con=sql_engine, if_exists="append", index=False)
+
+
+def load_data_from_sqlite_db(db_directory, dbname, tablename):
 
     db_path = os.path.join(db_directory, dbname)
     conn = sqlite3.connect(db_path)
     query = f"SELECT * FROM {tablename}"
-
     # Load data into a DataFrame
     df = pd.read_sql(query, conn)
+    return df
+
+
+def load_data_from_mysql_db(sql_engine, tablename):
+
+    query = f"SELECT * FROM {tablename}"
+    df = pd.read_sql(query, con=sql_engine)
     return df
 
 

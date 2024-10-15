@@ -97,7 +97,12 @@ def save_dataframe_to_mysql(sql_engine, tablename, dfpath=None, data=None):
 
 
 def save_dataframe_to_relational_db(
-    tablename, dbprovider, db_directory=None, dbname=None, df_path=None, data=None
+    tablename,
+    dbprovider="sqlite",
+    db_directory=None,
+    dbname=None,
+    df_path=None,
+    data=None,
 ):
 
     if dbprovider == "sqlite":
@@ -151,6 +156,17 @@ def load_data_from_mysql_db(sql_engine, tablename):
 
     query = f"SELECT * FROM {tablename}"
     df = pd.read_sql(query, con=sql_engine)
+    return df
+
+
+def load_data_from_relational_db(db_directory, dbname, tablename, dbprovider="sqlite"):
+
+    if dbprovider == "sqlite":
+
+        df = load_data_from_sqlite_db(db_directory, dbname, tablename)
+    else:
+        df = load_data_from_mysql_db(engine, tablename)
+
     return df
 
 

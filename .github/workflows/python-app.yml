@@ -58,7 +58,7 @@ jobs:
           context: "{{defaultContext}}:app/churn_guard/guard_deploy"
           #file: ./app/churn_guard/guard_deploy/Dockerfile
           push: true
-          tags: user/app:latest
+          tags: freshinit/fresh:V1
           build-args: |
             BUCKET_NAME=${{ secrets.BUCKET_NAME }}
             AWS_SERVER_PUBLIC_KEY=${{ secrets.AWS_SERVER_PUBLIC_KEY }}

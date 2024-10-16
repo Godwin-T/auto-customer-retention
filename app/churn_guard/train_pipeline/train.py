@@ -58,7 +58,7 @@ def training_pipeline():
     model, train_eval_result = train_model(
         X_train, y_train
     )  # Train the model and get the evaluation results on the training set
-    test_eval_result, y_pred = evaluate_model(
+    test_eval_result, _ = evaluate_model(
         model, X_test, y_test
     )  # Evaluate the model on the test set and get the evaluation results and predictions
 
@@ -70,7 +70,7 @@ def training_pipeline():
     client = MlflowClient(tracking_uri=tracking_uri)
     runs = client.search_runs(
         experiment_ids="1",
-        filter_string="metrics.f1_score >0.59",
+        # filter_string="metrics.f1_score >0.59",
         run_view_type=ViewType.ACTIVE_ONLY,
         max_results=1,
         order_by=["metrics.f1_score ASC"],

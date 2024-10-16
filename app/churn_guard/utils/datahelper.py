@@ -13,8 +13,9 @@ try:
     dbname = os.getenv("DBNAME")
     username = os.getenv("MYSWL_USERNAME")
     password = os.getenv("MYSQL_PASSWORD")
+    hostname = os.getenv("HOSTNAME")
     engine = create_engine(
-        f"mysql+mysqlconnector://{username}:{password}@localhost/{dbname}"
+        f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"
     )
 
 except:

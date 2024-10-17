@@ -67,19 +67,6 @@ def training_pipeline():
         "Test evaluation result": test_eval_result,
     }
 
-    client = MlflowClient(tracking_uri=tracking_uri)
-    runs = client.search_runs(
-        experiment_ids="1",
-        # filter_string="metrics.f1_score >0.59",
-        run_view_type=ViewType.ACTIVE_ONLY,
-        max_results=1,
-        order_by=["metrics.f1_score ASC"],
-    )[0]
-
-    run_id = runs.info.run_id
-    model_uri = f"runs:/{run_id}/model"
-    mlflow.register_model(model_uri=model_uri, name=model_name)
-
     # Print the training set evaluation results
     save_model(model, model_path)
 
@@ -93,16 +80,4 @@ def training_pipeline():
     print(json.dumps(test_eval_result, indent=2))
     print("======================================================")
 
-    # Save the overall model evaluation results, test set predictions, and the trained model
-    # save_metrics(model_evaluation_result)
-    # save_predictions(y_test, y_pred)
-
     return model_evaluation_result
-
-
-# if __name__ == "__main__":
-#     main()
-# # running loop from 0 to 4
-# for i in range(0,5):
-#     # adding 2 seconds time delay
-#     time.sleep(20000)

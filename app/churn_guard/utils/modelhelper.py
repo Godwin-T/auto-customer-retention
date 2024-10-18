@@ -42,7 +42,11 @@ def train_model(
         evaluation_result = evaluate(train_y, prediction)
 
         mlflow.log_metrics(evaluation_result)
-        mlflow.sklearn.log_model(lr_pipeline, artifact_path="model")
+        mlflow.sklearn.log_model(
+            lr_pipeline,
+            artifact_path="model",
+            registered_model_name="Sklearn-linear-models",
+        )
         artifact_uri = mlflow.get_artifact_uri()
         print(f"Artifact uri: {artifact_uri}")
 
@@ -51,7 +55,20 @@ def train_model(
 
 # Define Model Saving Function
 # @task(name="Save Model")
-def save_model(model, model_path):
+def save_model_to_dir(model, model_path):
+
+    if not os.path.exists(os.path.dirname(model_path)):
+        os.mkdir(os.path.dirname(model_path))
+
+    with open(model_path, "wb") as f_out:
+        pickle.dump(model, f_out)
+    print("Model saved successfully!")
+    return "Model saved successfully!"
+
+
+# Define Model Saving Function
+# @task(name="Save Model")
+def save_model_to_s3(model, model_path):
 
     if not os.path.exists(os.path.dirname(model_path)):
         os.mkdir(os.path.dirname(model_path))

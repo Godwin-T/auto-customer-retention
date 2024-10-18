@@ -9,9 +9,9 @@ from sqlalchemy import create_engine
 from dotenv import load_dotenv
 
 try:
-
+    load_dotenv()
     dbname = os.getenv("DBNAME")
-    username = os.getenv("MYSWL_USERNAME")
+    username = os.getenv("MYSQL_USERNAME")
     password = os.getenv("MYSQL_PASSWORD")
     hostname = os.getenv("HOSTNAME")
     engine = create_engine(

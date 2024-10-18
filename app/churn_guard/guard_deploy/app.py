@@ -5,9 +5,12 @@ import pickle
 import mlflow
 import pandas as pd
 
+
+from dotenv import load_dotenv
+
 # from prefect import task, flow
 from flask import Flask, request, jsonify
-from dotenv import load_dotenv
+from mlflow.tracking import MlflowClient
 
 load_dotenv()
 
@@ -36,10 +39,15 @@ def load_model_from_s3(s3_bucket, bucket_name, file_name):
     return model
 
 
-# mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-def load__mlflow_model(model_name, model_stage="Production"):
+tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
+client = MlflowClient(tracking_uri=tracking_uri)
 
-    model = mlflow.pyfunc.load_model(model_uri=f"models:/{model_name}/{model_stage}")
+
+def load__mlflow_model(model_name, model_alias="Production"):
+
+    model_info = client.get_model_version_by_alias(model_name, model_alias)
+    model_id = model_info.run_id
+    model = mlflow.pyfunc.load_model(f"runs:/{model_id}/model")
     return model
 
 
@@ -88,6 +96,7 @@ bucket_name = os.getenv("BUCKETNAME")
 file_name = os.getenv("OBJECTNAME")
 s3_bucket = None
 model = None
+model_name = "Sklearn-linear-models"
 
 
 app = Flask("Churn")
@@ -99,9 +108,10 @@ def initialize_resources():
     if not s3_bucket:
         s3_bucket = connect_bucket()  # Connect to S3 bucket once
     if not model:
-        model = load_model_from_s3(
-            s3_bucket, bucket_name, file_name
-        )  # Load model from S3 once
+        # model = load_model_from_s3(
+        #     s3_bucket, bucket_name, file_name
+        # )  # Load model from S3 once
+        model = load__mlflow_model(model_name)
 
 
 resources_initialized = False
@@ -120,7 +130,6 @@ def check_resources():
 def predict():
 
     data = request.get_json()
-    # model = load_model(MODEL_NAME, MODEL_STAGE)
 
     data = load_data(data)
     customer_id, record = input_data_processing(data)
@@ -136,13 +145,10 @@ def predict():
     )
 
 
-if __name__ == "__main__":
-    app.run(debug=True, port=9696)
+# if __name__ == "__main__":
+#     app.run(debug=True, port=9696)
 
-# mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-# loaded_model = mlflow.pyfunc.load_model(f"models:/{model_name}/{model_stage}")
 # mongo_client = MongoClient(MONGODB_ADDRESS)
 # db = mongo_client.get_database("prediction_service")
 # collection = db.get_collection("data")
-# save_to_db(record, bool(prediction))
 # send_to_evidently_service(record, bool(prediction))

@@ -47,6 +47,12 @@ jobs:
           chmod +x run.sh
           source ./run.sh
           echo "proceed=$DEPLOY" >> $GITHUB_ENV
+      env:
+          DBNAME: ${{ secrets.DBNAME }}
+          MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          HOSTNAME: ${{ secrets.HOSTNAME }}
+
     - name: Set output
       id: set-final-output
       run: echo "proceed=${{ env.proceed }}"

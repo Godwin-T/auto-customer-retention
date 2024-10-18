@@ -42,9 +42,6 @@ jobs:
       run: ls -R ./app/churn_guard/guard_deploy/
 
     - name: Train and Deploy Model
-      run : python run.py
-
-    - name: Get output from Python script
       id: set-output
       run: |
           chmod +x run.sh

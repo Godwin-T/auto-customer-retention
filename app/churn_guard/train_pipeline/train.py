@@ -1,17 +1,15 @@
 # Importing Libraries
 import os
 import json
-import mlflow
 import pandas as pd
 from prefect import task, flow
 from dotenv import load_dotenv
 
-from mlflow.entities import ViewType
-from mlflow.tracking import MlflowClient
+
 from sklearn.model_selection import train_test_split
 
 from app.churn_guard.utils.evaluate import evaluate_model
-from app.churn_guard.utils.modelhelper import train_model, save_model
+from app.churn_guard.utils.modelhelper import train_model, save_model_to_dir
 from app.churn_guard.utils.datahelper import load_data_from_relational_db
 
 load_dotenv()
@@ -68,7 +66,7 @@ def training_pipeline():
     }
 
     # Print the training set evaluation results
-    save_model(model, model_path)
+    save_model_to_dir(model, model_path)
 
     print("====================Train Set Metrics==================")
     print(json.dumps(train_eval_result, indent=2))

@@ -15,7 +15,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, Integer, String
 
 from app.churn_guard.utils.evaluate import evaluate
-from app.churn_guard.utils.modelhelper import save_model
+from app.churn_guard.utils.modelhelper import save_model_to_dir
 from app.churn_guard.train_pipeline.train import process_data
 from app.churn_guard.utils.datahelper import (
     load_data_from_sqlite_db,
@@ -152,5 +152,5 @@ def test_model_saving():
 
     model_path = f"{model_dir}/{model_name}"
 
-    assert save_model(model_name, model_path) == "Model saved successfully!"
+    assert save_model_to_dir(model_name, model_path) == "Model saved successfully!"
     shutil.rmtree(model_dir)

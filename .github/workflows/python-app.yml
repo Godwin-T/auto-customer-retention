@@ -47,8 +47,9 @@ jobs:
     - name: Get output from Python script
       id: set-output
       run: |
-          result=$(python run.py)
-          echo "proceed=$result" >> $GITHUB_ENV
+          chmod +x run.sh
+          source ./run.sh
+          echo "proceed=$DEPLOY" >> $GITHUB_ENV
     - name: Set output
       id: set-final-output
       run: echo "proceed=${{ env.proceed }}"

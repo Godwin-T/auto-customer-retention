@@ -40,6 +40,12 @@ jobs:
         pytest
     - name: Verify directory contents
       run: ls -R ./app/churn_guard/guard_deploy/
+    - name: Test MySQL Connection
+      run: |
+        apt-get update
+        apt-get install -y mysql-client
+        mysql -h 54.162.68.42 -u Fresh -p'#Freshcodes24' -e 'SHOW DATABASES;'
+
 
     - name: Train and Deploy Model
       id: set-output

@@ -11,6 +11,8 @@ MYSQL_PASSWORD=$MYSQL_PASSWORD
 HOSTNAME=$HOSTNAME
 EOT
 
+cat .env
+
 python_output=$(python run.py)
 
 echo $HOSTNAME

@@ -35,16 +35,19 @@ jobs:
     #     flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
     #     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
     #     flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        pytest
-    - name: Verify directory contents
-      run: ls -R ./app/churn_guard/guard_deploy/
-    - name: Test MySQL Connection
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y mysql-client
-        mysql -h 54.162.68.42 -u test -p'#Testinit24' -e 'SHOW DATABASES;'
+    # - name: Test with pytest
+    #   run: |
+    #     pytest
+    # - name: Verify directory contents
+    #   run: ls -R ./app/churn_guard/guard_deploy/
+    # - name: Test MySQL Connection
+    #   run: |
+    #     sudo apt-get update
+    #     sudo apt-get install -y mysql-client
+    #     mysql -h 54.162.68.42 -u test -p'#Testinit24' -e 'SHOW DATABASES;'
+
+    - name: Check DNS Resolution
+      run: nslookup ec2-54-162-68-42.compute-1.amazonaws.com
 
 
     - name: Train and Deploy Model

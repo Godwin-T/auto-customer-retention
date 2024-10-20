@@ -15,6 +15,8 @@ echo "MySQL Password: $MYSQL_PASSWORD"
 echo "Hostname: $HOSTNAME"
 echo "DB Name: $DBNAME"
 
+ping -c 4 $HOSTNAME
+
 # Example usage
 mysql -h $HOSTNAME -u $MYSQL_USERNAME -p$MYSQL_PASSWORD -e "SHOW DATABASES;"
 

@@ -18,7 +18,7 @@ EOT
 
 cat .env
 
-ls
+ls -a
 
 python_output=$(python k.py)
 

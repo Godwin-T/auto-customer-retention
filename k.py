@@ -11,10 +11,6 @@ hostname = os.getenv("HOSTNAME")
 engine = create_engine(
     f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"
 )
-print("=============================================================")
-print(dbname)
-print(username)
-print("+============================")
 
 
 def load_data_from_mysql_db(sql_engine, tablename):
@@ -25,4 +21,4 @@ def load_data_from_mysql_db(sql_engine, tablename):
 
 
 df = load_data_from_mysql_db(engine, "ProcessedData")
-print(df.shape)
+print("True")

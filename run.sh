@@ -13,10 +13,11 @@ HOSTNAME=$HOSTNAME
 
 python_output=$(python k.py)
 
-# echo $HOSTNAME
-# echo $MYSQL_PASSWORD
-# echo $MYSQL_USERNAME
-# exho $DBNAME
+echo $HOSTNAME
+echo $MYSQL_PASSWORD
+echo $MYSQL_USERNAME
+echo $DBNAME
 
 # Set the output of the Python script as an environment variable
 DEPLOY=$python_output
+echo $DEPLOY

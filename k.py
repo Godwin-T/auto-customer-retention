@@ -10,6 +10,8 @@ dbname = os.getenv("DBNAME")
 username = os.getenv("MYSQL_USERNAME")
 password = os.getenv("MYSQL_PASSWORD")
 hostname = os.getenv("HOSTNAME")
+print(dbname, username, hostname, password)
+
 engine = create_engine(
     f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"
 )

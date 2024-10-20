@@ -49,7 +49,7 @@ jobs:
 
     - name: Train and Deploy Model
       id: set-output
-      run: mysql -h ${{ secrets.HOSTNAME }} -u Fresh -p'#Freshcodes24' -e 'SHOW DATABASES;'
+      run: mysql -h ${{ secrets.HOSTNAME }} -u ${{ secrets.MYSQL_USERNAME }} -p'#Freshcodes24' -e 'SHOW DATABASES;'
       # run: |
       #     chmod +x run.sh
       #     source ./run.sh

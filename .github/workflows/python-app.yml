@@ -56,7 +56,7 @@ jobs:
       env:
 
           MYSQL_USERNAME: Fresh #${{ secrets.MYSQL_USERNAME }}
-          MYSQL_PASSWORD: "#Freshcodes24" #${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_PASSWORD: '#Freshcodes24' #${{ secrets.MYSQL_PASSWORD }}
           HOSTNAME: "54.162.68.42" #${{ secrets.HOSTNAME }}
           DBNAME: Customerdb #${{ secrets.DBNAME }}
 

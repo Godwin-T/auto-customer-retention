@@ -3,7 +3,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 
-# load_dotenv()
+load_dotenv()
 dbname = os.getenv("DBNAME")
 username = os.getenv("MYSQL_USERNAME")
 password = os.getenv("MYSQL_PASSWORD")

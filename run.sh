@@ -10,6 +10,14 @@ HOSTNAME=$HOSTNAME
 # HOSTNAME=$HOSTNAME
 # EOT
 
+echo "MySQL Username: $MYSQL_USERNAME"
+echo "MySQL Password: $MYSQL_PASSWORD"
+echo "Hostname: $HOSTNAME"
+echo "DB Name: $DBNAME"
+
+# Example usage
+mysql -h $HOSTNAME -u $MYSQL_USERNAME -p$MYSQL_PASSWORD -e "SHOW DATABASES;"
+
 
 python_output=$(python k.py)
 

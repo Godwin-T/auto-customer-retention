@@ -18,6 +18,8 @@ EOT
 
 cat .env
 
+ls
+
 python_output=$(python k.py)
 
 # echo $HOSTNAME

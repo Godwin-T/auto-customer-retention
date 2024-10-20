@@ -16,9 +16,6 @@ MYSQL_PASSWORD=$MYSQL_PASSWORD
 HOSTNAME=$HOSTNAME
 EOT
 
-cat .env
-
-ls -a
 
 python_output=$(python k.py)
 

@@ -57,7 +57,7 @@ jobs:
 
           MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          HOSTNAME: ${{ secrets.HOSTNAME }}
+          HOSTNAME: "54.162.68.42" #${{ secrets.HOSTNAME }}
           DBNAME: ${{ secrets.DBNAME }}
 
     - name: Set output

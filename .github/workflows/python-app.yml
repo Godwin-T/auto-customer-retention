@@ -54,7 +54,7 @@ jobs:
           source ./run.sh
           echo "proceed=$DEPLOY" >> $GITHUB_ENV
       env:
-          DBNAME: customerdf #${{ secrets.DBNAME }}
+          DBNAME: Customerdb #${{ secrets.DBNAME }}
           MYSQL_USERNAME: Fresh #${{ secrets.MYSQL_USERNAME }}
           MYSQL_PASSWORD: "#Freshcodes24" #${{ secrets.MYSQL_PASSWORD }}
           HOSTNAME: "54.162.68.42" #${{ secrets.HOSTNAME }}

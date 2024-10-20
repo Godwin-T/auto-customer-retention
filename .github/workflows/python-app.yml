@@ -60,7 +60,7 @@ jobs:
           MYSQL_USERNAME: Fresh #${{ secrets.MYSQL_USERNAME }}
           MYSQL_PASSWORD: '#Freshcodes24' #${{ secrets.MYSQL_PASSWORD }}
           THOSTNAME: ec2-54-162-68-42.compute-1.amazonaws.com #${{ secrets.TRYOUTHOST }}
-          DBNAME:  ${{ secrets.DBNAME }}
+          DBNAME:  Customerdb #${{ secrets.DBNAME }}
 
     - name: Set output
       id: set-final-output

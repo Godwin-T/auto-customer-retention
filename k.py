@@ -9,7 +9,7 @@ load_dotenv()
 dbname = os.getenv("DBNAME")
 username = os.getenv("MYSQL_USERNAME")
 password = os.getenv("MYSQL_PASSWORD")
-hostname = os.getenv("HOSTNAME")
+hostname = os.getenv("THOSTNAME")
 print(dbname, username, hostname, password)
 
 engine = create_engine(

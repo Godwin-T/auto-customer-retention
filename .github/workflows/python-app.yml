@@ -52,13 +52,12 @@ jobs:
       run: |
           chmod +x run.sh
           source ./run.sh
-          echo "proceed=$DEPLOY" >> $GITHUB_ENV
+         # echo "proceed=$DEPLOY" >> $GITHUB_ENV
       env:
-
           MYSQL_USERNAME: Fresh #${{ secrets.MYSQL_USERNAME }}
           MYSQL_PASSWORD: '#Freshcodes24' #${{ secrets.MYSQL_PASSWORD }}
           HOSTNAME: "54.162.68.42" #${{ secrets.HOSTNAME }}
-          DBNAME: Customerdb #${{ secrets.DBNAME }}
+          DBNAME:  ${{ secrets.DBNAME }}
 
     - name: Set output
       id: set-final-output

@@ -59,7 +59,7 @@ jobs:
       env:
           MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          THOSTNAME: ${{ secrets.TRYOUTHOST }}
+          THOSTNAME: ec2-54-162-68-42.compute-1.amazonaws.com #${{ secrets.TRYOUTHOST }}
           DBNAME:  ${{ secrets.DBNAME }}
 
     - name: Set output

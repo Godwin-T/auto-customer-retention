@@ -10,10 +10,10 @@
 # HOSTNAME=$THOSTNAME
 # EOT
 
-# echo "MySQL Username: $MYSQL_USERNAME"
-# echo "MySQL Password: $MYSQL_PASSWORD"
-# echo "Hostname: $THOSTNAME"
-# echo "DB Name: $DBNAME"
+echo "MySQL Username: $MYSQL_USERNAME"
+echo "MySQL Password: $MYSQL_PASSWORD"
+echo "Hostname: $THOSTNAME"
+echo "DB Name: $DBNAME"
 
 # Example usage
 mysql -h $THOSTNAME -u $MYSQL_USERNAME -p$MYSQL_PASSWORD -e "SHOW DATABASES;"

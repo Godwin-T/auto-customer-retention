@@ -56,7 +56,7 @@ jobs:
       env:
           MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          HOSTNAME: ${{ secrets.HOSTNAME }}
+          THOSTNAME: ${{ secrets.TRYOUTHOST }}
           DBNAME:  ${{ secrets.DBNAME }}
 
     - name: Set output

@@ -44,20 +44,21 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y mysql-client
-        mysql -h 54.162.68.42 -u Fresh -p'#Freshcodes24' -e 'SHOW DATABASES;'
+
 
 
     - name: Train and Deploy Model
       id: set-output
-      run: |
-          chmod +x run.sh
-          source ./run.sh
-          echo "proceed=$DEPLOY" >> $GITHUB_ENV
-      env:
-          DBNAME: ${{ secrets.DBNAME }}
-          MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          HOSTNAME: ${{ secrets.HOSTNAME }}
+      run: mysql -h ${{ secrets.HOSTNAME }} -u Fresh -p'#Freshcodes24' -e 'SHOW DATABASES;'
+      # run: |
+      #     chmod +x run.sh
+      #     source ./run.sh
+      #     echo "proceed=$DEPLOY" >> $GITHUB_ENV
+      # env:
+      #     DBNAME: ${{ secrets.DBNAME }}
+      #     MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
+      #     MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+      #     HOSTNAME: ${{ secrets.HOSTNAME }}
 
     - name: Set output
       id: set-final-output

@@ -57,7 +57,7 @@ jobs:
           source ./run.sh
          # echo "proceed=$DEPLOY" >> $GITHUB_ENV
       env:
-          MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
+          MYSQL_USERNAME: Fresh #${{ secrets.MYSQL_USERNAME }}
           MYSQL_PASSWORD: '#Freshcodes24' #${{ secrets.MYSQL_PASSWORD }}
           THOSTNAME: ec2-54-162-68-42.compute-1.amazonaws.com #${{ secrets.TRYOUTHOST }}
           DBNAME:  ${{ secrets.DBNAME }}

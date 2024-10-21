@@ -38,13 +38,9 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
+
     - name: Verify directory contents
       run: ls -R ./app/churn_guard/guard_deploy/
-    - name: Test MySQL Connection
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y mysql-client
-        mysql -h 54.162.68.42 -u test -p'#Testinit24' -e 'SHOW DATABASES;'
 
     - name: Set Environment Variables
       id: set-output
@@ -65,14 +61,28 @@ jobs:
         echo "MYSQL_USERNAME is $PROCESSED_DATASET_NAME"
         echo '=================================='
 
+    - name: Test MySQL Connection
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mysql-client
+        mysql -h $HOSTNAME -u test -p'#Testinit24' -e 'SHOW DATABASES;'
+
+
     - name: Run Script
       run: |
-        chmod +x run.sh
-        source ./run.sh
+        python run.py
+
+    - name: Capture Last Output
+      run: |
+        last_line=$(tail -n 1 result.txt)
+        echo "FINAL_RESULT=$last_line" >> $GITHUB_ENV
+
+    - name: Debug Output
+      run: echo "The final result is $FINAL_RESULT"
 
     - name: Set output
       id: set-final-output
-      run: echo "proceed=${{ env.proceed }}"
+      run: echo "proceed=$FINAL_RESULT"
 
   docker:
     runs-on: ubuntu-latest

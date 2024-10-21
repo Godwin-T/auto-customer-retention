@@ -50,4 +50,5 @@ def deploy_production():
     deploy_info = change_model_stage()
     run_id = deploy_info["run_id"]
     change = deploy_info["change"]
-    print(change)
+    with open("result.txt", "w") as f:
+        f.write(change)

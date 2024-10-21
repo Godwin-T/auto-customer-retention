@@ -39,7 +39,7 @@ else:
 if dataname:
     print(f"API Key: {dataname}")
 else:
-    print(f"API Key {dataname} not found!")
+    print(f"API Key {dataname} not foud!")
 
 
 # engine = create_engine(

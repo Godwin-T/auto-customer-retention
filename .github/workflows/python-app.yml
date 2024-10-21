@@ -57,6 +57,9 @@ jobs:
         echo "THOSTNAME=${{ secrets.TRYOUTHOST }}" >> $GITHUB_ENV
         echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> $GITHUB_ENV
         echo "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}" >> $GITHUB_ENV
+
+        echo ${{env.DBNAME}}
+        echo ${{env.MYSQL_USERNAME}}
         chmod +x run.sh
         source ./run.sh
       #   # echo "proceed=$DEPLOY" >> $GITHUB_ENV

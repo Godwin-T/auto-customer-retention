@@ -50,7 +50,7 @@ def training_pipeline():
     data = load_data_from_relational_db(
         dbprovider="mysql", tablename=processed_dataset_name
     )
-    X, y = process_data(data, target_column="Predictions")
+    X, y = process_data(data, target_column="churn")
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1993)
 
     model, train_eval_result = train_model(

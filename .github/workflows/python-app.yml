@@ -80,9 +80,10 @@ jobs:
     - name: Debug Output
       run: echo "The final result is $FINAL_RESULT"
 
+
     - name: Set output
       id: set-final-output
-      run: echo "proceed=$FINAL_RESULT"
+      run: echo "::set-output name=proceed::$last_true"
 
   docker:
     runs-on: ubuntu-latest

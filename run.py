@@ -4,3 +4,4 @@ from app.churn_guard.utils.process_data import main
 
 training_pipeline()
 result = deploy_production()
+print("Succesful")

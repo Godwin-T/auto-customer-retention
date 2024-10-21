@@ -51,4 +51,4 @@ def deploy_production():
     run_id = deploy_info["run_id"]
     change = deploy_info["change"]
     with open("result.txt", "w") as f:
-        f.write(change)
+        f.write(str(change))

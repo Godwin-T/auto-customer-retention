@@ -55,7 +55,7 @@ jobs:
       run: |
         chmod +x run.sh
         source ./run.sh
-        echo "DBNAME=${{ secrets.DBNAME }}" >> $GITHUB_ENV
+        echo "DBNAME=${{ secrets.DOCKERHUB_USERNAME }}" >> $GITHUB_ENV
         echo "THOSTNAME=${{ secrets.TRYOUTHOST }}" >> $GITHUB_ENV
         echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> $GITHUB_ENV
         echo "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}" >> $GITHUB_ENV

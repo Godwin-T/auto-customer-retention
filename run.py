@@ -3,6 +3,4 @@ from app.churn_guard.utils.deploy import deploy_production
 from app.churn_guard.utils.process_data import main
 
 training_pipeline()
-# print("Successful")
 result = deploy_production()
-# print("Successful")

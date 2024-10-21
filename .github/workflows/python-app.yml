@@ -81,7 +81,7 @@ jobs:
       id: set-final-output
       run: echo "proceed=${{ env.FINAL_RESULT }}"
 
-    - name: Debug PriOutput
+    - name: Debug Output
       run: echo "The final result is ${{ steps.capture-result.outputs.proceed }}"
 
   docker:

@@ -77,6 +77,7 @@ jobs:
     - name: Capture Last Output
       run: |
         last_line=$(tail -n 1 result.txt)
+        echo "proceed=$last_line" >> $GITHUB_OUTPUT
         echo "proceed=$last_line" >> $GITHUB_ENV
 
     - name: Set output

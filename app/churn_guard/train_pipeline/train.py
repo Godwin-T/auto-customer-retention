@@ -14,7 +14,7 @@ from app.churn_guard.utils.datahelper import load_data_from_relational_db
 
 load_dotenv()
 
-target_column = os.getenv("TARGET_COLUMN")
+# target_column = os.getenv("TARGET_COLUMN")
 db_dir = os.getenv("DB_DIRECTORY")
 
 db_name = os.getenv("DB_NAME")
@@ -50,7 +50,7 @@ def training_pipeline():
     data = load_data_from_relational_db(
         dbprovider="mysql", tablename=processed_dataset_name
     )
-    X, y = process_data(data, target_column)
+    X, y = process_data(data, target_column="Predictions")
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1993)
 
     model, train_eval_result = train_model(
@@ -66,7 +66,7 @@ def training_pipeline():
     }
 
     # Print the training set evaluation results
-    save_model_to_dir(model, model_path)
+    # save_model_to_dir(model, model_path)
 
     print("====================Train Set Metrics==================")
     print(json.dumps(train_eval_result, indent=2))

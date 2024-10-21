@@ -44,7 +44,7 @@ def train_model(
         mlflow.log_metrics(evaluation_result)
         mlflow.sklearn.log_model(
             lr_pipeline,
-            artifact_path="model",
+            artifact_path="mlflowartifactsdb/mlflow",
             registered_model_name="Sklearn-models",
         )
         artifact_uri = mlflow.get_artifact_uri()

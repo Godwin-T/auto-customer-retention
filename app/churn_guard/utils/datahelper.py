@@ -1,6 +1,7 @@
 import os
 import time
 import sqlite3
+import argparse
 import pandas as pd
 from typing import List
 from pymongo import MongoClient
@@ -8,12 +9,31 @@ from datetime import datetime
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 
+load_dotenv()
+
 try:
-    # load_dotenv()
-    dbname = os.getenv("DBNAME")
-    username = os.getenv("MYSQL_USERNAME")
-    password = os.getenv("MYSQL_PASSWORD")
-    hostname = os.getenv("HOSTNAME")
+
+    parser = argparse.ArgumentParser(description="To get database credentials")
+
+    parser.add_argument("--host", default="Unknown", help="host name")
+    parser.add_argument("--dbname", default="Unknown", help="host name")
+    parser.add_argument("--username", default="Unknown", help="host name")
+    parser.add_argument("--passkey", default="Unknown", help="host name")
+
+    args = parser.parse_args()
+
+    if args.host == "Unknown":
+
+        dbname = os.getenv("DBNAME")
+        username = os.getenv("MYSQL_USERNAME")
+        password = os.getenv("MYSQL_PASSWORD")
+        hostname = os.getenv("HOSTNAME")
+    else:
+        dbname = args.dbname
+        username = args.userame
+        password = args.passkey
+        hostname = args.host
+
     engine = create_engine(
         f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"
     )
@@ -21,6 +41,8 @@ try:
     print(dbname)
     print(username)
     print("+============================")
+
+
 except:
     """"""
 
@@ -165,7 +187,7 @@ def load_data_from_mysql_db(sql_engine, tablename):
 
 
 def load_data_from_relational_db(
-    tablename, dbprovider="sqlite", db_directory=None, dbname=None
+    dbprovider="sqlite", db_directory=None, dbname=None, tablename="ProcessedData"
 ):
 
     if dbprovider == "sqlite":

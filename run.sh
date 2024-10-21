@@ -1,5 +1,7 @@
 # Example usage
-mysql -h $THOSTNAME -u $MYSQL_USERNAME -p$MYSQL_PASSWORD -e "SHOW DATABASES;"
+mysql -h $HOSTNAME -u $MYSQL_USERNAME -p$MYSQL_PASSWORD -e "SHOW DATABASES;"
+
+echo '=================================================================================='
 
 
 python_output=$(python run.py)

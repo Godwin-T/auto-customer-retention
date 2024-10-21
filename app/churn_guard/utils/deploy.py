@@ -7,7 +7,7 @@ from app.churn_guard.utils.validate import compare_metrics, get_metrics
 load_dotenv()
 
 
-model_name = "Sklearn-linear-models"
+model_name = "Sklearn-models"
 tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
 client = MlflowClient(tracking_uri=tracking_uri)
 

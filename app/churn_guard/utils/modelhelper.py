@@ -45,7 +45,7 @@ def train_model(
         mlflow.sklearn.log_model(
             lr_pipeline,
             artifact_path="model",
-            registered_model_name="Sklearn-linear-models",
+            registered_model_name="Sklearn-models",
         )
         artifact_uri = mlflow.get_artifact_uri()
         print(f"Artifact uri: {artifact_uri}")

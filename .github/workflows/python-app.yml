@@ -1,131 +1,154 @@
-# This workflow will install Python dependencies, run tests, and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+# # This workflow will install Python dependencies, run tests, and lint with a single version of Python
+# # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: Python application
+# name: Python application
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+# on:
+#   push:
+#     branches: [ "main" ]
+#   pull_request:
+#     branches: [ "main" ]
 
-permissions:
-  contents: read
+# permissions:
+#   contents: read
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     outputs:
+#       deploy_output: ${{ steps.output_step.outputs.proceed }}
+
+#     steps:
+#     - uses: actions/checkout@v4
+#     - name: Set up Python 3.10
+#       uses: actions/setup-python@v3
+#       with:
+#         python-version: "3.10"
+#     - name: Install dependencies
+#       run: |
+#         sudo apt-get update
+#         sudo apt install mysql-client mysql-server
+#         python -m pip install --upgrade pip
+#         pip install flake8 pytest
+#         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+#     # - name: Lint with flake8
+#     #   run: |
+#     #     # stop the build if there are Python syntax errors or undefined names
+#     #     flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+#     #     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+#     #     flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+#     - name: Test with pytest
+#       run: |
+#         pytest
+
+#     - name: Verify directory contents
+#       run: ls -R ./app/churn_guard/guard_deploy/
+
+#     - name: Set Environment Variables
+#       id: set-output
+#       run: |
+#         echo "DBNAME=${{ secrets.DBNAME }}" >> $GITHUB_ENV
+#         echo "HOSTNAME=${{ secrets.HOSTNAME }}" >> $GITHUB_ENV
+#         echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> $GITHUB_ENV
+#         echo "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}" >> $GITHUB_ENV
+#         echo "PROCESSED_DATASET_NAME=${{ secrets.PROCESSED_DATASET_NAME }}" >> $GITHUB_ENV
+#         echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> $GITHUB_ENV
+#         echo "OBJECTNAME=${{ secrets.OBJECTNAME }}" >> $GITHUB_ENV
+#         echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> $GITHUB_ENV
+
+#     - name: Print Environment Variable
+#       run: |
+#         echo "DBNAME is $DBNAME"
+#         echo "MYSQL_USERNAME is $MYSQL_USERNAME"
+#         echo "MYSQL_USERNAME is $PROCESSED_DATASET_NAME"
+#         echo '=================================='
+
+#     - name: Test MySQL Connection
+#       run: |
+#         sudo apt-get update
+#         sudo apt-get install -y mysql-client
+#         mysql -h $HOSTNAME -u test -p'#Testinit24' -e 'SHOW DATABASES;'
+
+
+#     - name: Run Script
+#       run: |
+#         python run.py
+
+#     - name: Capture Last Output
+#       run: |
+#         last_line=$(tail -n 1 result.txt)
+#         echo "proceed=$last_line" >> $GITHUB_OUTPUT
+#         echo "proceed=$last_line" >> $GITHUB_ENV
+
+#     - name: Set output
+#       id: set-final-output
+#       run: echo "proceed=${{ env.proceed }}"
+
+#     - name: Debug Output
+#       run: echo "The final result is ${{ steps.outputs.proceed }}"
+
+#   docker:
+#     runs-on: ubuntu-latest
+#     needs: build
+#     #if: needs.build.outputs.proceed == 'True'
+#     steps:
+#         - name: Check
+#           run: |
+#             echo ${{  needs.build.outputs.deploy_output }}
+#             echo "Output from job1: ${{ needs.build.outputs.deploy_output }}"
+#   #     - name: Run this job if the deploy condition is met
+#   #       run: echo "This job is running because the deploy condition was met"
+#   #     - name: Set up QEMU
+#   #       uses: docker/setup-qemu-action@v3
+#   #     - name: Set up Docker Buildx
+#   #       uses: docker/setup-buildx-action@v3
+#   #     - name: Login to Docker Hub
+#   #       uses: docker/login-action@v3
+#   #       with:
+#   #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+#   #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+#   #     - name: Build and push
+#   #       uses: docker/build-push-action@v6
+#   #       with:
+#   #         context: "{{defaultContext}}:app/churn_guard/guard_deploy"
+#   #         push: true
+#   #         tags: freshinit/fresh:${{ github.sha }}
+#   #         build-args: |
+#   #           BUCKET_NAME=${{ secrets.BUCKET_NAME }}
+#   #           AWS_SERVER_PUBLIC_KEY=${{ secrets.AWS_SERVER_PUBLIC_KEY }}
+#   #           AWS_SERVER_SECRET_KEY=${{ secrets.AWS_SERVER_SECRET_KEY }}
+#   #           OBJECTNAME=${{ secrets.OBJECTNAME }}
+#   #           MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}
+
+#   # deploy:
+#   #   runs-on: ubuntu-latest
+#   #   needs: docker
+#   #   steps:
+#   #     - name: Deploy new model
+#   #       run: |
+#   #         docker pull freshinit/fresh:${{ github.sha }}
+#   #         docker stop $(docker ps -q --filter ancestor=freshinit/fresh)
+#   #         docker run -d -p 80:80 mydockerhub/myapp:${{ github.sha }}
+
+
+name: Job Output Example
+
+on: [push]
 
 jobs:
-  build:
+  job1:
     runs-on: ubuntu-latest
     outputs:
-      deploy_output: ${{ steps.output_step.outputs.proceed }}
-
+      job1_output: ${{ steps.output_step.outputs.output_var }}
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.10"
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt install mysql-client mysql-server
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    # - name: Lint with flake8
-    #   run: |
-    #     # stop the build if there are Python syntax errors or undefined names
-    #     flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-    #     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-    #     flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        pytest
+      - name: Generate output
+        id: output_step
+        run: echo "output_var=Hello from job1" >> $GITHUB_OUTPUT
 
-    - name: Verify directory contents
-      run: ls -R ./app/churn_guard/guard_deploy/
-
-    - name: Set Environment Variables
-      id: set-output
-      run: |
-        echo "DBNAME=${{ secrets.DBNAME }}" >> $GITHUB_ENV
-        echo "HOSTNAME=${{ secrets.HOSTNAME }}" >> $GITHUB_ENV
-        echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> $GITHUB_ENV
-        echo "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}" >> $GITHUB_ENV
-        echo "PROCESSED_DATASET_NAME=${{ secrets.PROCESSED_DATASET_NAME }}" >> $GITHUB_ENV
-        echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> $GITHUB_ENV
-        echo "OBJECTNAME=${{ secrets.OBJECTNAME }}" >> $GITHUB_ENV
-        echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> $GITHUB_ENV
-
-    - name: Print Environment Variable
-      run: |
-        echo "DBNAME is $DBNAME"
-        echo "MYSQL_USERNAME is $MYSQL_USERNAME"
-        echo "MYSQL_USERNAME is $PROCESSED_DATASET_NAME"
-        echo '=================================='
-
-    - name: Test MySQL Connection
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y mysql-client
-        mysql -h $HOSTNAME -u test -p'#Testinit24' -e 'SHOW DATABASES;'
-
-
-    - name: Run Script
-      run: |
-        python run.py
-
-    - name: Capture Last Output
-      run: |
-        last_line=$(tail -n 1 result.txt)
-        echo "proceed=$last_line" >> $GITHUB_OUTPUT
-        echo "proceed=$last_line" >> $GITHUB_ENV
-
-    - name: Set output
-      id: set-final-output
-      run: echo "proceed=${{ env.proceed }}"
-
-    - name: Debug Output
-      run: echo "The final result is ${{ steps.capture-result.outputs.proceed }}"
-
-  docker:
+  job2:
     runs-on: ubuntu-latest
-    needs: build
-    #if: needs.build.outputs.proceed == 'True'
+    needs: job1
     steps:
-        - name: Check
-          run: |
-            echo ${{  needs.build.outputs.deploy_output }}
-            echo "Output from job1: ${{ needs.build.outputs.deploy_output }}"
-  #     - name: Run this job if the deploy condition is met
-  #       run: echo "This job is running because the deploy condition was met"
-  #     - name: Set up QEMU
-  #       uses: docker/setup-qemu-action@v3
-  #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v3
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
-  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
-  #     - name: Build and push
-  #       uses: docker/build-push-action@v6
-  #       with:
-  #         context: "{{defaultContext}}:app/churn_guard/guard_deploy"
-  #         push: true
-  #         tags: freshinit/fresh:${{ github.sha }}
-  #         build-args: |
-  #           BUCKET_NAME=${{ secrets.BUCKET_NAME }}
-  #           AWS_SERVER_PUBLIC_KEY=${{ secrets.AWS_SERVER_PUBLIC_KEY }}
-  #           AWS_SERVER_SECRET_KEY=${{ secrets.AWS_SERVER_SECRET_KEY }}
-  #           OBJECTNAME=${{ secrets.OBJECTNAME }}
-  #           MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}
-
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #   needs: docker
-  #   steps:
-  #     - name: Deploy new model
-  #       run: |
-  #         docker pull freshinit/fresh:${{ github.sha }}
-  #         docker stop $(docker ps -q --filter ancestor=freshinit/fresh)
-  #         docker run -d -p 80:80 mydockerhub/myapp:${{ github.sha }}
+      - name: Use output from job1
+        run: |
+          echo "Output from job1: ${{ needs.job1.outputs.job1_output }}"

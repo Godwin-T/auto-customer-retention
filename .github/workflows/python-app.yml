@@ -83,7 +83,7 @@ jobs:
 
     - name: Set output
       id: set-final-output
-      run: echo "::set-output name=proceed::$last_true"
+      run: echo "proceed=${{ env.FINAL_RESULT }}"
 
   docker:
     runs-on: ubuntu-latest

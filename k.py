@@ -8,6 +8,7 @@ dbname = os.getenv("DBNAME")
 username = os.getenv("MYSQL_USERNAME")
 password = os.getenv("MYSQL_PASSWORD")
 hostname = os.getenv("HOSTNAME")
+dataname = os.getenv("PROCESSED_DATASET_NAME")
 
 if dbname:
     print(f"API Key: {dbname}")
@@ -29,10 +30,21 @@ if hostname:
 else:
     print(f"API Key {hostname} not found!")
 
+if hostname:
+    print(f"API Key: {hostname}")
+else:
+    print(f"API Key {hostname} not found!")
 
-engine = create_engine(
-    f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"
-)
+
+if dataname:
+    print(f"API Key: {dataname}")
+else:
+    print(f"API Key {dataname} not found!")
+
+
+# engine = create_engine(
+#     f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"
+# )
 
 
 # def load_data_from_mysql_db(sql_engine, tablename):

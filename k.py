@@ -12,7 +12,7 @@ dbname = os.getenv("DBNAME")
 if dbname:
     print(f"API Key: {dbname}")
 else:
-    print("API Key not found!")
+    print(f"API Key {dbname} not found!")
 
 # engine = create_engine(
 #     f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"

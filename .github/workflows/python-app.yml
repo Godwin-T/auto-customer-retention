@@ -90,7 +90,7 @@ jobs:
     #if: needs.build.outputs.proceed == 'True'
     steps:
         - name: Check
-          run: echo needs.build.outputs.proceed
+          run: echo ${{  needs.build.outputs.proceed }}
   #     - name: Run this job if the deploy condition is met
   #       run: echo "This job is running because the deploy condition was met"
   #     - name: Set up QEMU

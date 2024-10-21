@@ -58,6 +58,9 @@ jobs:
         echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> $GITHUB_ENV
         echo "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}" >> $GITHUB_ENV
         echo "PROCESSED_DATASET_NAME=${{ secrets.PROCESSED_DATASET_NAME }}" >> $GITHUB_ENV
+        echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> $GITHUB_ENV
+        echo "OBJECTNAME=${{ secrets.OBJECTNAME }}" >> $GITHUB_ENV
+        echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> $GITHUB_ENV
 
     - name: Print Environment Variables (Debugging)
       run: |

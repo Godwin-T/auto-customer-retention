@@ -10,5 +10,5 @@ echo $MYSQL_USERNAME
 echo $DBNAME
 
 # Set the output of the Python script as an environment variable
-# DEPLOY=$python_output
-# echo $DEPLOY
+DEPLOY=$python_output
+echo $DEPLOY

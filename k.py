@@ -30,17 +30,17 @@ else:
     print(f"API Key {hostname} not found!")
 
 
-# engine = create_engine(
-#     f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"
-# )
+engine = create_engine(
+    f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"
+)
 
 
-# def load_data_from_mysql_db(sql_engine, tablename):
+def load_data_from_mysql_db(sql_engine, tablename):
 
-#     query = f"SELECT * FROM {tablename}"
-#     df = pd.read_sql(query, con=sql_engine)
-#     return df
+    query = f"SELECT * FROM {tablename}"
+    df = pd.read_sql(query, con=sql_engine)
+    return df
 
 
-# df = load_data_from_mysql_db(engine, "ProcessedData")
-# print("True")
+df = load_data_from_mysql_db(engine, "ProcessedData")
+print("True")

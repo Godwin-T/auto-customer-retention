@@ -5,14 +5,30 @@ from dotenv import load_dotenv
 
 
 dbname = os.getenv("DBNAME")
-# username = os.getenv("MYSQL_USERNAME")
-# password = os.getenv("MYSQL_PASSWORD")
-# hostname = os.getenv("THOSTNAME")
+username = os.getenv("MYSQL_USERNAME")
+password = os.getenv("MYSQL_PASSWORD")
+hostname = os.getenv("THOSTNAME")
 
 if dbname:
     print(f"API Key: {dbname}")
 else:
     print(f"API Key {dbname} not found!")
+
+if username:
+    print(f"API Key: {username}")
+else:
+    print(f"API Key {username} not found!")
+
+if password:
+    print(f"API Key: {password}")
+else:
+    print(f"API Key {password} not found!")
+
+if hostname:
+    print(f"API Key: {hostname}")
+else:
+    print(f"API Key {hostname} not found!")
+
 
 # engine = create_engine(
 #     f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"

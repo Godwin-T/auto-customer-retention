@@ -61,9 +61,9 @@ jobs:
       #   echo "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}" >> $GITHUB_ENV
       # #   # echo "proceed=$DEPLOY" >> $GITHUB_ENV
       env:
-          # MYSQL_USERNAME: 'Fresh' #${{ secrets.MYSQL_USERNAME }}
-          # MYSQL_PASSWORD: '#Freshcodes24' #${{ secrets.MYSQL_PASSWORD }}
-          THOSTNAME:  ${{ secrets.TRYOUTHOST }} #"54.162.68.42"
+          MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          THOSTNAME:  ${{ secrets.TRYOUTHOST }}
           DBNAME:  ${{ secrets.DBNAME }}
 
     - name: Set output

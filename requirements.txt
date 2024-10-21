@@ -7,3 +7,4 @@ prefect
 mlflow
 pymongo
 mysql-connector-python
+pymysql

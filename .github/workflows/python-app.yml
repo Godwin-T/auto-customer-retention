@@ -57,11 +57,13 @@ jobs:
         echo "HOSTNAME=${{ secrets.HOSTNAME }}" >> $GITHUB_ENV
         echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> $GITHUB_ENV
         echo "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}" >> $GITHUB_ENV
+        echo "PROCESSED_DATASET_NAME=${{ secrets.PROCESSED_DATASET_NAME }}" >> $GITHUB_ENV
 
     - name: Print Environment Variables (Debugging)
       run: |
         echo "DBNAME is $DBNAME"
         echo "MYSQL_USERNAME is $MYSQL_USERNAME"
+        echo "MYSQL_USERNAME is $PROCESSED_DATASET_NAME"
         echo '=================================='
 
     - name: Run Script

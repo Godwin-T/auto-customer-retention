@@ -53,18 +53,18 @@ jobs:
     - name: Train and Deploy Model
       id: set-output
       run: |
+        echo "DBNAME=${{ secrets.DOCKERHUB_USERNAME }}" >> $GITHUB_ENV
+        echo "THOSTNAME=${{ secrets.TRYOUTHOST }}" >> $GITHUB_ENV
+        echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> $GITHUB_ENV
+        echo "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}" >> $GITHUB_ENV
         chmod +x run.sh
         source ./run.sh
-      #   echo "DBNAME=${{ secrets.DOCKERHUB_USERNAME }}" >> $GITHUB_ENV
-      #   echo "THOSTNAME=${{ secrets.TRYOUTHOST }}" >> $GITHUB_ENV
-      #   echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> $GITHUB_ENV
-      #   echo "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}" >> $GITHUB_ENV
-      # #   # echo "proceed=$DEPLOY" >> $GITHUB_ENV
-      env:
-          MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          THOSTNAME:  ${{ secrets.TRYOUTHOST }}
-          DBNAME:  ${{ secrets.DBNAME }}
+      #   # echo "proceed=$DEPLOY" >> $GITHUB_ENV
+      # env:
+          # MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
+          # MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          # THOSTNAME:  ${{ secrets.TRYOUTHOST }}
+          # DBNAME:  ${{ secrets.DBNAME }}
 
     - name: Set output
       id: set-final-output

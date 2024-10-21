@@ -9,7 +9,7 @@ echo $MYSQL_PASSWORD
 echo $MYSQL_USERNAME
 echo $DBNAME
 
-echot '================================================================='
+echo '================================================================='
 # Set the output of the Python script as an environment variable
 DEPLOY=$python_output
 echo $DEPLOY

@@ -15,6 +15,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      deploy_output: ${{ steps.output_step.outputs.proceed }}
 
     steps:
     - uses: actions/checkout@v4
@@ -75,11 +77,11 @@ jobs:
     - name: Capture Last Output
       run: |
         last_line=$(tail -n 1 result.txt)
-        echo "FINAL_RESULT=$last_line" >> $GITHUB_ENV
+        echo "proceed=$last_line" >> $GITHUB_ENV
 
     - name: Set output
       id: set-final-output
-      run: echo "proceed=${{ env.FINAL_RESULT }}"
+      run: echo "proceed=${{ env.proceed }}"
 
     - name: Debug Output
       run: echo "The final result is ${{ steps.capture-result.outputs.proceed }}"
@@ -90,7 +92,9 @@ jobs:
     #if: needs.build.outputs.proceed == 'True'
     steps:
         - name: Check
-          run: echo ${{  needs.build.outputs.proceed }}
+          run: |
+            echo ${{  needs.build.outputs.deploy_output }}
+            echo "Output from job1: ${{ needs.build.outputs.deploy_output }}"
   #     - name: Run this job if the deploy condition is met
   #       run: echo "This job is running because the deploy condition was met"
   #     - name: Set up QEMU

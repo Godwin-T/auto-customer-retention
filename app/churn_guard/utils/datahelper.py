@@ -37,11 +37,6 @@ try:
     engine = create_engine(
         f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"
     )
-    print("=============================================================")
-    print(dbname)
-    print(username)
-    print("+============================")
-
 
 except:
     """"""

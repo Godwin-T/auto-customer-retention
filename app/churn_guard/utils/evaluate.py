@@ -19,7 +19,7 @@ def evaluate(y_true, prediction):
 
 
 # Define Model Evaluation Function
-# @task(name="Evaluate Model")
+@task(name="Evaluate Model")
 def evaluate_model(model, X_test, y_test, float_precision=4):
 
     X_test = X_test.to_dict(orient="records")

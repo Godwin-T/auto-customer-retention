@@ -28,12 +28,15 @@ experiment_name = os.getenv("EXPERIMENT_NAME")
 model_name = "Custormer-churn-models"
 
 
+@task(name="Process input data")
 def process_data(data, target_column):
 
     # Load data
     X = data.drop(target_column, axis=1)
     y = data[target_column]
-    return X, y
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1993)
+    output = (X_train, X_test, y_train, y_test)
+    return output
 
 
 @flow(name="Training and Model Evaluation")
@@ -49,8 +52,7 @@ def training_pipeline():
     data = load_data_from_relational_db(
         dbprovider="mysql", tablename=processed_dataset_name
     )
-    X, y = process_data(data, target_column="churn")
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1993)
+    (X_train, X_test, y_train, y_test) = process_data(data, target_column="churn")
 
     model, train_eval_result = train_model(
         X_train, y_train

@@ -14,7 +14,7 @@ from app.churn_guard.utils.evaluate import evaluate
 load_dotenv()
 
 # Define Model Training Function
-# @task(name="Train model")
+@task(name="Train model")
 def train_model(
     train_x,
     train_y,
@@ -61,7 +61,7 @@ def train_model(
 
 
 # Define Model Saving Function
-# @task(name="Save Model")
+@task(name="Save Model to directory")
 def save_model_to_dir(model, model_path):
 
     if not os.path.exists(os.path.dirname(model_path)):
@@ -74,7 +74,7 @@ def save_model_to_dir(model, model_path):
 
 
 # Define Model Saving Function
-# @task(name="Save Model")
+@task(name="Save Model to s3")
 def save_model_to_s3(model, model_path):
 
     if not os.path.exists(os.path.dirname(model_path)):

@@ -8,6 +8,7 @@ from pymongo import MongoClient
 from datetime import datetime
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
+from prefect import task
 
 load_dotenv()
 
@@ -42,7 +43,8 @@ except:
     """"""
 
 
-def load_data_tomongo(path, dbname, dbcollection):
+@task(name="Push data to mongodb")
+def push_data_tomongo(path, dbname, dbcollection):
 
     client = MongoClient("localhost", "27017")
     db = client[dbname]
@@ -61,6 +63,7 @@ def load_data_tomongo(path, dbname, dbcollection):
     print("Data imported successfully!")
 
 
+@task(name="Load data from mongodb")
 def load_data_from_mongodb(dbname, dbcollection):
 
     client = MongoClient("localhost", "27017")
@@ -71,6 +74,7 @@ def load_data_from_mongodb(dbname, dbcollection):
     return data
 
 
+@task(name="Update mongodb data")
 def insert_collection_to_mongbdb(dbname, dbcollection, data):
 
     client = MongoClient("localhost", 27017)
@@ -81,6 +85,7 @@ def insert_collection_to_mongbdb(dbname, dbcollection, data):
     collection.update_one({}, update)
 
 
+@task(name="Push data to sqlite")
 def save_dataframe_to_sqlite(db_directory, dbname, tablename, dfpath=None, data=None):
 
     now = datetime.now()
@@ -101,6 +106,7 @@ def save_dataframe_to_sqlite(db_directory, dbname, tablename, dfpath=None, data=
     conn.close()
 
 
+@task(name="Load data from sqlite")
 def save_dataframe_to_mysql(sql_engine, tablename, dfpath=None, data=None):
 
     now = datetime.now()
@@ -116,6 +122,56 @@ def save_dataframe_to_mysql(sql_engine, tablename, dfpath=None, data=None):
 
     # Save the DataFrame to MySQL
     data.to_sql(name=tablename, con=sql_engine, if_exists="append", index=False)
+
+
+@task(name="Update sqlite data")
+def insert_record(dbname, tablename, record: tuple):
+
+    conn = sqlite3.connect(dbname)
+    cursor = conn.cursor()
+    cursor.execute(f"INSERT INTO {tablename} {(record)}")
+
+    conn.commit()
+    conn.close()
+
+
+@task(name="Create sqlite database table")
+def create_sqlite_database_table(dbname, tablename, dfpath):
+
+    df = pd.read_csv(dfpath)
+    df["log_time"] = time.time()
+
+    conn = sqlite3.connect(dbname)
+    df.to_sql(tablename, conn, if_exists="fail", index=False)
+    conn.close()
+
+
+@task(name="Create mysql database table")
+def create_mysql_database_table(sql_engine, dfpath, tablename):
+
+    df = pd.read_csv(dfpath)
+    df["log_time"] = time.time()
+    # Save the DataFrame to MySQL
+    df.to_sql(name=tablename, con=sql_engine, if_exists="append", index=False)
+
+
+@task(name="Load data from sqlite")
+def load_data_from_sqlite_db(db_directory, dbname, tablename):
+
+    db_path = os.path.join(db_directory, dbname)
+    conn = sqlite3.connect(db_path)
+    query = f"SELECT * FROM {tablename}"
+    # Load data into a DataFrame
+    df = pd.read_sql(query, conn)
+    return df
+
+
+@task(name="Load data from mysql")
+def load_data_from_mysql_db(sql_engine, tablename):
+
+    query = f"SELECT * FROM {tablename}"
+    df = pd.read_sql(query, con=sql_engine)
+    return df
 
 
 def save_dataframe_to_relational_db(
@@ -134,51 +190,6 @@ def save_dataframe_to_relational_db(
     else:
 
         save_dataframe_to_mysql(engine, tablename, df_path, data)
-
-
-def insert_record(dbname, tablename, record: tuple):
-
-    conn = sqlite3.connect(dbname)
-    cursor = conn.cursor()
-    cursor.execute(f"INSERT INTO {tablename} {(record)}")
-
-    conn.commit()
-    conn.close()
-
-
-def create_sqlite_database_table(dbname, tablename, dfpath):
-
-    df = pd.read_csv(dfpath)
-    df["log_time"] = time.time()
-
-    conn = sqlite3.connect(dbname)
-    df.to_sql(tablename, conn, if_exists="fail", index=False)
-    conn.close()
-
-
-def create_mysql_database_table(sql_engine, dfpath, tablename):
-
-    df = pd.read_csv(dfpath)
-    df["log_time"] = time.time()
-    # Save the DataFrame to MySQL
-    df.to_sql(name=tablename, con=sql_engine, if_exists="append", index=False)
-
-
-def load_data_from_sqlite_db(db_directory, dbname, tablename):
-
-    db_path = os.path.join(db_directory, dbname)
-    conn = sqlite3.connect(db_path)
-    query = f"SELECT * FROM {tablename}"
-    # Load data into a DataFrame
-    df = pd.read_sql(query, conn)
-    return df
-
-
-def load_data_from_mysql_db(sql_engine, tablename):
-
-    query = f"SELECT * FROM {tablename}"
-    df = pd.read_sql(query, con=sql_engine)
-    return df
 
 
 def load_data_from_relational_db(

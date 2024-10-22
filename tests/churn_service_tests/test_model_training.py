@@ -103,7 +103,7 @@ def test_process_data():
     input_df_path = "./sample_data/processed_data.csv"
     input_df = pd.read_csv(input_df_path)
 
-    features, target = process_data(input_df, target_column="churn")
+    features, target = process_data.fn(input_df, target_column="churn")
 
     assert features.shape == (7, 19)
     assert target.shape == (7,)

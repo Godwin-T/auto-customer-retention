@@ -1,4 +1,3 @@
-# import mlflow
 import os
 import boto3
 import pickle
@@ -8,13 +7,14 @@ import pandas as pd
 
 from dotenv import load_dotenv
 
-# from prefect import task, flow
+from prefect import task, flow
 from flask import Flask, request, jsonify
 from mlflow.tracking import MlflowClient
 
 load_dotenv()
 
 
+@task(name="Connect to s3 bucket")
 def connect_bucket(
     access_key_id=os.getenv("AWS_SERVER_PUBLIC_KEY"),
     access_secret_key=os.getenv("AWS_SERVER_SECRET_KEY"),
@@ -27,12 +27,9 @@ def connect_bucket(
     return s3_bucket
 
 
-# @task
+@task(name="Load model from s3 bucket")
 def load_model_from_s3(s3_bucket, bucket_name, file_name):
 
-    print(s3_bucket)
-    print(bucket_name)
-    print(file_name)
     obj = s3_bucket.get_object(Bucket=bucket_name, Key=file_name)
     model = obj["Body"].read()
     model = pickle.loads(model)
@@ -43,23 +40,23 @@ tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
 client = MlflowClient(tracking_uri=tracking_uri)
 
 
+@task(name="Load model from mlflow artifact store")
 def load__mlflow_model(model_name, model_alias="Production"):
 
     model_info = client.get_model_version_by_alias(model_name, model_alias)
     model_id = model_info.run_id
-    model = mlflow.pyfunc.load_model(f"runs:/{model_id}/model")
+    model = mlflow.pyfunc.load_model(f"runs:/{model_id}/mlflow")
     return model
 
 
-# @task
-
-
+@task(name="Load input data")
 def load_data(data):
 
     data = pd.DataFrame(data)
     return data
 
 
+@task(name="Process input data")
 def input_data_processing(data):
 
     data.drop_duplicates(inplace=True)
@@ -74,7 +71,7 @@ def input_data_processing(data):
     return customer_id, data
 
 
-# @task
+@task(name="Process output data")
 def output_data_processing(customer_id, prediction):
 
     dicts = {"customerid": customer_id, "churn": prediction}
@@ -86,6 +83,7 @@ def output_data_processing(customer_id, prediction):
     return data_frame
 
 
+@task(name="Upload Prediction")
 def upload_prediction_to_s3(s3_bucket, local_file_path, bucket_name, s3_object_name):
 
     s3_bucket.upload_file(local_file_path, bucket_name, s3_object_name)
@@ -96,12 +94,14 @@ bucket_name = os.getenv("BUCKETNAME")
 file_name = os.getenv("OBJECTNAME")
 s3_bucket = None
 model = None
-model_name = "Sklearn-linear-models"
+model_name = "Sklearn-models"
+resources_initialized = False
 
 
 app = Flask("Churn")
 
 
+@task(name="Initailize resources")
 def initialize_resources():
     """Initializes model and S3 bucket connection once when the app starts."""
     global s3_bucket, model
@@ -114,9 +114,6 @@ def initialize_resources():
         model = load__mlflow_model(model_name)
 
 
-resources_initialized = False
-
-
 @app.before_request
 def check_resources():
     global resources_initialized
@@ -126,7 +123,7 @@ def check_resources():
 
 
 @app.route("/predict", methods=["POST"])
-# @flow
+@flow(name="Prediction Flow")
 def predict():
 
     data = request.get_json()
@@ -147,8 +144,3 @@ def predict():
 
 # if __name__ == "__main__":
 #     app.run(debug=True, port=9696)
-
-# mongo_client = MongoClient(MONGODB_ADDRESS)
-# db = mongo_client.get_database("prediction_service")
-# collection = db.get_collection("data")
-# send_to_evidently_service(record, bool(prediction))

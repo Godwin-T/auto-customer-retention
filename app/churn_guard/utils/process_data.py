@@ -22,7 +22,7 @@ target_column_name = os.getenv("TARGET_COLUMN")
 
 
 # Load data
-# @task(name="Load Data")
+@task(name="Load data from path")
 def load_dataset(filepath: str):
 
     dataframe = pd.read_csv(filepath)
@@ -30,7 +30,7 @@ def load_dataset(filepath: str):
 
 
 # Prepare Data
-# @task(name="Process Data")
+@task(name="Process raw data")
 def process_dataset(dataframe: pd.DataFrame, target_column_name, drop_cols=None):
 
     dataframe.columns = dataframe.columns.str.replace(" ", "_").str.lower()
@@ -47,7 +47,7 @@ def process_dataset(dataframe: pd.DataFrame, target_column_name, drop_cols=None)
     return dataframe
 
 
-# @flow(name="Data Processing")
+@flow(name="Data Processing")
 def main():
 
     input_data = load_dataset(filepath=raw_dataset_path)
@@ -59,7 +59,3 @@ def main():
     save_dataframe_to_relational_db(
         tablename=processed_dataset_name, dbprovider="mysql", data=churn_data
     )
-
-
-# if __name__ == "__main__":
-#     main()

@@ -2,6 +2,7 @@ import os
 import pickle
 import mlflow
 
+import mlflow.entities
 from prefect import task
 from dotenv import load_dotenv
 from sklearn.pipeline import make_pipeline
@@ -18,10 +19,16 @@ def train_model(
     train_x,
     train_y,
     c_value=71,
-    tracking_uri=os.getenv("MLFLOW_TRACKING_URI"),
-    experiment_name="Customer_Churn_Predictions",
+    tracking_uri="http://0.0.0.0:5000",  # os.getenv("MLFLOW_TRACKING_URI"),
+    experiment_name="Customer_Churn_Prediction",
 ):
-
+    # mlflow.delete_experiment(experiment_name)
+    try:
+        mlflow.create_experiment(
+            experiment_name, artifact_location="s3://mlflowartifactsdb/"
+        )
+    except:
+        pass
     mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment(experiment_name)
 
@@ -44,7 +51,7 @@ def train_model(
         mlflow.log_metrics(evaluation_result)
         mlflow.sklearn.log_model(
             lr_pipeline,
-            artifact_path="mlflowartifactsdb/mlflow",
+            artifact_path="mlflow",
             registered_model_name="Sklearn-models",
         )
         artifact_uri = mlflow.get_artifact_uri()

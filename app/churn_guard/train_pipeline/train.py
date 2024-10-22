@@ -44,7 +44,7 @@ def training_pipeline():
     # X, y = load_data_from_db(PROCESSED_DATASET)
 
     print(
-        "=================================Starting Model Training================================================="
+        "=================================Starting Model Training=================================================\n\n"
     )
 
     data = load_data_from_relational_db(

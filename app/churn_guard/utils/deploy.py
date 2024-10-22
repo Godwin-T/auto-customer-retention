@@ -1,5 +1,5 @@
 import os
-import mlflow
+from prefect import task, flow
 from dotenv import load_dotenv
 from mlflow.tracking import MlflowClient
 from app.churn_guard.utils.validate import compare_metrics, get_metrics
@@ -12,6 +12,7 @@ tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
 client = MlflowClient(tracking_uri=tracking_uri)
 
 
+@task(name="Change model")
 def change_model_stage():
 
     production_alias = "Production"
@@ -45,6 +46,7 @@ def change_model_stage():
     return deploy_info
 
 
+@flow(name="Deployment flow")
 def deploy_production():
 
     deploy_info = change_model_stage()

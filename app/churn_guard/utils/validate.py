@@ -1,6 +1,7 @@
 import os
 import json
 
+from prefect import task
 from dotenv import load_dotenv
 from app.churn_guard.utils.evaluate import evaluate_model
 
@@ -14,6 +15,7 @@ current_model = ""
 new_model = ""
 
 
+@task(name="Evaluate models")
 def models_evaluation(current_model, new_model, X, y):
 
     current_model_evaluations = evaluate_model(current_model, X, y)
@@ -26,6 +28,7 @@ def models_evaluation(current_model, new_model, X, y):
         json.dump(new_model_evaluations, json_file, indent=2)
 
 
+@task(name="Compare model metrics")
 def compare_metrics(previous_metrics, new_metrics):
 
     previous_f1 = previous_metrics["f1_score"]
@@ -42,6 +45,7 @@ def compare_metrics(previous_metrics, new_metrics):
     return deploy
 
 
+@task(name="Get model metrics")
 def get_metrics(client, run_id):
 
     f1_score_history = client.get_metric_history(run_id, "f1_score")

@@ -97,7 +97,9 @@ jobs:
 
     steps:
       - name: Run this job if the deploy condition is met
-        run: echo "This job is running because the deploy condition was met"
+        run: |
+          echo proceed = ${{  needs.build.outputs.deploy_output }}
+          echo "This job is running because the deploy condition was met"
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx

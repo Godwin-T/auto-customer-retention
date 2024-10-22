@@ -19,7 +19,7 @@ def train_model(
     train_x,
     train_y,
     c_value=71,
-    tracking_uri="http://0.0.0.0:5000",  # os.getenv("MLFLOW_TRACKING_URI"),
+    tracking_uri=os.getenv("MLFLOW_TRACKING_URI"),
     experiment_name="Customer_Churn_Prediction",
 ):
     # mlflow.delete_experiment(experiment_name)

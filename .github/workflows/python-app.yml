@@ -74,6 +74,8 @@ jobs:
 
     - name: Run Script
       run: |
+        export AWS_SERVER_PUBLIC_KEY=$AWS_SERVER_PUBLIC_KEY
+        export AWS_SERVER_SECRET_KEY=$AWS_SERVER_SECRET_KEY
         python run.py
 
     - name: Capture Last Output

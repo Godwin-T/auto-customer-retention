@@ -28,7 +28,6 @@ experiment_name = os.getenv("EXPERIMENT_NAME")
 model_name = "Custormer-churn-models"
 
 
-# @task(name="Load data")
 def process_data(data, target_column):
 
     # Load data
@@ -37,7 +36,7 @@ def process_data(data, target_column):
     return X, y
 
 
-# @flow(name="Training and Model Evaluation")
+@flow(name="Training and Model Evaluation")
 def training_pipeline():
 
     # Load the processed dataset and split into train and test sets

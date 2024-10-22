@@ -189,8 +189,6 @@ def load_data_from_relational_db(
 
         df = load_data_from_sqlite_db(db_directory, dbname, tablename)
     else:
-        print("=============================================")
-        print("enine==========================================")
         df = load_data_from_mysql_db(engine, tablename)
 
     return df

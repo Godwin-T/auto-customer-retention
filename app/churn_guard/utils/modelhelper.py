@@ -24,9 +24,11 @@ def train_model(
 ):
     # mlflow.delete_experiment(experiment_name)
     try:
+
         mlflow.create_experiment(
-            experiment_name, artifact_location="s3://mlflowartifactsdb/"
+            experiment_name, artifact_location="s3://mlflowartifactsdb/mlflow"
         )
+
     except:
         pass
     mlflow.set_tracking_uri(tracking_uri)
@@ -54,8 +56,8 @@ def train_model(
             artifact_path="mlflow",
             registered_model_name="Sklearn-models",
         )
-        artifact_uri = mlflow.get_artifact_uri()
-        print(f"Artifact uri: {artifact_uri}")
+        # artifact_uri = mlflow.get_artifact_uri()
+        # print(f"Artifact uri: {artifact_uri}")
 
     return lr_pipeline, evaluation_result
 

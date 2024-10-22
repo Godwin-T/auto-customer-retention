@@ -5,14 +5,12 @@ import shutil
 import sqlite3
 
 import pandas as pd
-import mysql.connector
 from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction import DictVectorizer
 
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine
 
 from app.churn_guard.utils.evaluate import evaluate
 from app.churn_guard.utils.modelhelper import save_model_to_dir
@@ -64,8 +62,8 @@ def temp_mysql_db(db_engine):
     input_df_path = "./sample_data/processed_data.csv"
     input_df = pd.read_csv(input_df_path)
 
-    create_mysql_database_table(engine, input_df_path, tablename="test")
-    output_df = load_data_from_mysql_db(engine, tablename="test")
+    create_mysql_database_table.fn(engine, input_df_path, tablename="test")
+    output_df = load_data_from_mysql_db.fn(engine, tablename="test")
 
     Session = sessionmaker(bind=db_engine)
     session = Session()
@@ -82,7 +80,7 @@ def test_load_data_from_sqlite_db(temp_sqlite_db):
     db_directory = str(tmpdir)  # Convert tmpdir to string
 
     # Call the function to load data
-    df = load_data_from_sqlite_db(db_directory, dbname, "users")
+    df = load_data_from_sqlite_db.fn(db_directory, dbname, "users")
 
     # Assert that the DataFrame returned by the function matches the expected DataFrame
     pd.testing.assert_frame_equal(df, expected_df)
@@ -152,5 +150,5 @@ def test_model_saving():
 
     model_path = f"{model_dir}/{model_name}"
 
-    assert save_model_to_dir(model_name, model_path) == "Model saved successfully!"
+    assert save_model_to_dir.fn(model_name, model_path) == "Model saved successfully!"
     shutil.rmtree(model_dir)

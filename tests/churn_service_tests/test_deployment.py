@@ -25,7 +25,7 @@ def test_load_data():
     input_data = pd.read_csv(data_path)
     input_data_dict = input_data.to_dict()
 
-    data = load_data(input_data_dict)  # Function to load data
+    data = load_data.fn(input_data_dict)  # Function to load data
     assert isinstance(data, pd.DataFrame)  # Check if data is a DataFrame
     assert data.shape[1] == 21  # Verify expected dimensions
 
@@ -89,7 +89,7 @@ def test_input_data_processing():
 
     data_path = "./sample_data/raw_data.csv"
     input_data = pd.read_csv(data_path)
-    _, data = input_data_processing(input_data.copy())
+    _, data = input_data_processing.fn(input_data.copy())
 
     assert (input_data.shape[1] - 1) == data.shape[1]
 
@@ -120,7 +120,7 @@ def test_output_data_processing():
         "6388-tabgu",
     ]
     prediction = [1, 0, 0, 0, 1, 1, 0, 0, 0, 0]
-    output_data = output_data_processing(customerid, prediction)
+    output_data = output_data_processing.fn(customerid, prediction)
 
     assert isinstance(output_data, pd.DataFrame)
     assert output_data.columns.tolist() == [
@@ -142,7 +142,7 @@ def test_load_model_from_s3_moto():
     s3.put_object(Bucket="test-bucket", Key="model.pkl", Body=pickle.dumps(model))
 
     # Call the function that loads the model from S3
-    loaded_model = load_model_from_s3(
+    loaded_model = load_model_from_s3.fn(
         s3, bucket_name="test-bucket", file_name="model.pkl"
     )
 
@@ -168,7 +168,9 @@ def test_upload_file_to_s3():
         pickle.dump(test_file_content, f)
 
     # Call the function to upload the file to S3
-    upload_prediction_to_s3(s3, test_file_path, bucket_name, "uploaded_test_file.pkl")
+    upload_prediction_to_s3.fn(
+        s3, test_file_path, bucket_name, "uploaded_test_file.pkl"
+    )
 
     # Verify that the file exists in the mock S3 bucket
     response = s3.get_object(Bucket=bucket_name, Key="uploaded_test_file.pkl")

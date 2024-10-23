@@ -1,58 +1,19 @@
-import os
-import pandas as pd
-from sqlalchemy import create_engine
-from dotenv import load_dotenv
+# from app.churn_guard.guard_deploy.app import app
 
 
-dbname = os.getenv("DBNAME")
-username = os.getenv("MYSQL_USERNAME")
-password = os.getenv("MYSQL_PASSWORD")
-hostname = os.getenv("HOSTNAME")
-dataname = os.getenv("PROCESSED_DATASET_NAME")
+# if __name__ == "__main__":
+#     app.run(debug=True, port=9696)
 
-if dbname:
-    print(f"API Key: {dbname}")
-else:
-    print(f"API Key {dbname} not found!")
+from app.churn_guard.prefect.deployment_flow import main
 
-if username:
-    print(f"API Key: {username}")
-else:
-    print(f"API Key {username} not found!")
+if __name__ == "__main__":
 
-if password:
-    print(f"API Key: {password}")
-else:
-    print(f"API Key {password} not found!")
-
-if hostname:
-    print(f"API Key: {hostname}")
-else:
-    print(f"API Key {hostname} not found!")
-
-if hostname:
-    print(f"API Key: {hostname}")
-else:
-    print(f"API Key {hostname} not found!")
-
-
-if dataname:
-    print(f"API Key: {dataname}")
-else:
-    print(f"API Key {dataname} not foud!")
-
-
-# engine = create_engine(
-#     f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"
-# )
-
-
-# def load_data_from_mysql_db(sql_engine, tablename):
-
-#     query = f"SELECT * FROM {tablename}"
-#     df = pd.read_sql(query, con=sql_engine)
-#     return df
-
-
-# df = load_data_from_mysql_db(engine, "ProcessedData")
-# print("True")
+    main.serve(name="data=processing-deployment", cron="*/3 * * * *")
+# if __name__ == "__main__":
+#     main.deploy(
+#         name="my-deployment",
+#         work_pool_name="customer-retention",
+#         image="freshinit/fresh:V1",
+#         push = False,
+#         cron="*/3 * * * *"
+#     )

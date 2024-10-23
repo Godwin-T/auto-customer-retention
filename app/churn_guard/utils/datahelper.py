@@ -106,7 +106,7 @@ def save_dataframe_to_sqlite(db_directory, dbname, tablename, dfpath=None, data=
     conn.close()
 
 
-@task(name="Load data from sqlite")
+@task(name="Push data to sqlite")
 def save_dataframe_to_mysql(sql_engine, tablename, dfpath=None, data=None):
 
     now = datetime.now()

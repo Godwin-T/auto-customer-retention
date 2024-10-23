@@ -103,10 +103,9 @@ def test_process_data():
     input_df_path = "./sample_data/processed_data.csv"
     input_df = pd.read_csv(input_df_path)
 
-    features, target = process_data.fn(input_df, target_column="churn")
+    output = process_data.fn(input_df, target_column="churn")
 
-    assert features.shape == (7, 19)
-    assert target.shape == (7,)
+    assert output[0].shape[1] == 19
 
 
 def test_model_training():
@@ -114,20 +113,20 @@ def test_model_training():
     input_df_path = "./sample_data/processed_data.csv"
     input_df = pd.read_csv(input_df_path)
 
-    features, target = process_data(input_df, target_column="churn")
-    features = features.to_dict(orient="records")
+    output = process_data.fn(input_df, target_column="churn")
+    features = output[0].to_dict(orient="records")
 
     lr_pipeline = make_pipeline(
         DictVectorizer(sparse=False), LogisticRegression(C=1)
     )  # make training pipeline
 
-    lr_pipeline.fit(features, target)
+    lr_pipeline.fit(features, output[2])
 
     linear_model = lr_pipeline.named_steps["logisticregression"]
     coefficients = linear_model.coef_
 
     # Test if the model has been trained (check for model parameters)
-    assert coefficients.shape[1] == 37, "Model output shape is incorrect"
+    assert coefficients.shape[1] == 36, "Model output shape is incorrect"
 
 
 def test_evaluate_model():

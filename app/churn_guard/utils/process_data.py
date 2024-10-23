@@ -48,7 +48,7 @@ def process_dataset(dataframe: pd.DataFrame, target_column_name, drop_cols=None)
 
 
 @flow(name="Data Processing")
-def main():
+def data_processing_pipeline():
 
     input_data = load_dataset(filepath=raw_dataset_path)
     save_dataframe_to_relational_db(

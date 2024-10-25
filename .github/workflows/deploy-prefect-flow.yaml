@@ -34,5 +34,5 @@ jobs:
       - name: Prefect Deploy
         run: |
           pip install -r requirements.txt
-          prefect cloud login --key=$PREFECT_API_KEY --workspace=$PREFECT_WORKFLOW
+          prefect cloud login --key=$PREFECT_API_KEY --workspace=$PREFECT_WORKSPACE
           python deployment_flow.py

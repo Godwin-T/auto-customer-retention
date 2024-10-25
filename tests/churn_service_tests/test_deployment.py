@@ -21,7 +21,7 @@ def test_load_data():
 
     """Tests loading a CSV dataset."""
 
-    data_path = "./sample_data/raw_data.csv"
+    data_path = "./tests/sample_data/raw_data.csv"
     input_data = pd.read_csv(data_path)
     input_data_dict = input_data.to_dict()
 
@@ -87,7 +87,7 @@ def test_input_data_processing():
 
     """Tests processing a Dataframe"""
 
-    data_path = "./sample_data/raw_data.csv"
+    data_path = "./tests/sample_data/raw_data.csv"
     input_data = pd.read_csv(data_path)
     _, data = input_data_processing.fn(input_data.copy())
 

@@ -31,7 +31,7 @@ def temp_sqlite_db():
     if not (os.path.exists(tmpdir)):
         os.mkdir(tmpdir)
 
-    input_data_path = "./sample_data/raw_data.csv"
+    input_data_path = "./tests/sample_data/raw_data.csv"
     tablename = "users"
 
     db_path = os.path.join(tmpdir, "test.db")
@@ -59,7 +59,7 @@ def db_engine():
 def temp_mysql_db(db_engine):
 
     engine = db_engine
-    input_df_path = "./sample_data/processed_data.csv"
+    input_df_path = "./tests/sample_data/processed_data.csv"
     input_df = pd.read_csv(input_df_path)
 
     create_mysql_database_table.fn(engine, input_df_path, tablename="test")
@@ -100,7 +100,7 @@ def test_load_data_from_myql_db(temp_mysql_db):
 
 def test_process_data():
 
-    input_df_path = "./sample_data/processed_data.csv"
+    input_df_path = "./tests/sample_data/processed_data.csv"
     input_df = pd.read_csv(input_df_path)
 
     output = process_data.fn(input_df, target_column="churn")
@@ -110,7 +110,7 @@ def test_process_data():
 
 def test_model_training():
 
-    input_df_path = "./sample_data/processed_data.csv"
+    input_df_path = "./tests/sample_data/processed_data.csv"
     input_df = pd.read_csv(input_df_path)
 
     output = process_data.fn(input_df, target_column="churn")

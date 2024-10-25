@@ -4,7 +4,7 @@ from app.churn_guard.utils.process_data import load_dataset, process_dataset
 
 def test_load_dataset():
 
-    input_data_path = "./sample_data/raw_data.csv"
+    input_data_path = "./tests/sample_data/raw_data.csv"
     data = load_dataset.fn(input_data_path)
 
     assert isinstance(data, pd.DataFrame)
@@ -13,7 +13,7 @@ def test_load_dataset():
 
 def test_process_dataset():
 
-    input_data_path = "./sample_data/raw_data.csv"
+    input_data_path = "./tests/sample_data/raw_data.csv"
     data = load_dataset.fn(input_data_path)
     output_data = process_dataset.fn(data, target_column_name="churn")
 

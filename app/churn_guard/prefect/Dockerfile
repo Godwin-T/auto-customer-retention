@@ -41,8 +41,6 @@ ENV WORKSPACE=${WORKSPACE}
 ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
 ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 
-
-
 RUN prefect cloud login --key $PREFECT_KEY --workspace $WORKSPACE
 
 ENTRYPOINT [ "python", "deployment_flow.py" ]

@@ -25,10 +25,14 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Set Environment Variables
+        id: set-output
+        run: |
+          echo "PREFECT_API_KEY=${{ secrets.PREFECT_API_KEY }}" >> $GITHUB_ENV
+          echo "PREFECT_WORKSPACE=${{ secrets.PREFECT_WORKSPACE }}" >> $GITHUB_ENV
+
       - name: Prefect Deploy
-        env:
-          PREFECT_API_KEY: ${{ secrets.PREFECT_API_KEY }}
-          PREFECT_API_URL: ${{ secrets.PREFECT_API_URL }}
         run: |
           pip install -r requirements.txt
+          prefect cloud login --key=$PREFECT_API_KEY --workspace=PREFECT_WORKFLOW
           python deployment_flow.py

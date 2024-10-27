@@ -89,7 +89,7 @@ def insert_collection_to_mongbdb(dbname, dbcollection, data):
 def save_dataframe_to_sqlite(db_directory, dbname, tablename, dfpath=None, data=None):
 
     now = datetime.now()
-    formatted_date = now.strftime("%d/%B/%Y")
+    formatted_date = now.strftime("%Y-%m-%d")
 
     if dfpath:
 
@@ -110,7 +110,7 @@ def save_dataframe_to_sqlite(db_directory, dbname, tablename, dfpath=None, data=
 def save_dataframe_to_mysql(sql_engine, tablename, dfpath=None, data=None):
 
     now = datetime.now()
-    formatted_date = now.strftime("%d/%B/%Y")
+    formatted_date = now.strftime("%Y-%m-%d")
 
     if dfpath:
 
@@ -138,8 +138,10 @@ def insert_record(dbname, tablename, record: tuple):
 @task(name="Create sqlite database table")
 def create_sqlite_database_table(dbname, tablename, dfpath):
 
+    now = datetime.now()
+    formatted_date = now.strftime("%Y-%m-%d")
     df = pd.read_csv(dfpath)
-    df["log_time"] = time.time()
+    df["log_time"] = formatted_date
 
     conn = sqlite3.connect(dbname)
     df.to_sql(tablename, conn, if_exists="fail", index=False)
@@ -149,10 +151,14 @@ def create_sqlite_database_table(dbname, tablename, dfpath):
 @task(name="Create mysql database table")
 def create_mysql_database_table(sql_engine, dfpath, tablename):
 
+    now = datetime.now()
+    formatted_date = now.strftime("%Y-%m-%d")
+
     df = pd.read_csv(dfpath)
-    df["log_time"] = time.time()
-    # Save the DataFrame to MySQL
-    df.to_sql(name=tablename, con=sql_engine, if_exists="append", index=False)
+    df["log_time"] = formatted_date
+    df.to_sql(
+        name=tablename, con=sql_engine, if_exists="append", index=False
+    )  # Save the DataFrame to MySQL
 
 
 @task(name="Load data from sqlite")

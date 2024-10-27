@@ -5,7 +5,7 @@ import pandas as pd
 import pkg_resources
 from moto import mock_aws
 from app.churn_guard.guard_deploy.app import (
-    load_data,
+    load_data_with_path,
     input_data_processing,
     output_data_processing,
     load_model_from_s3,
@@ -25,7 +25,7 @@ def test_load_data():
     input_data = pd.read_csv(data_path)
     input_data_dict = input_data.to_dict()
 
-    data = load_data.fn(input_data_dict)  # Function to load data
+    data = load_data_with_path.fn(input_data_dict)  # Function to load data
     assert isinstance(data, pd.DataFrame)  # Check if data is a DataFrame
     assert data.shape[1] == 21  # Verify expected dimensions
 

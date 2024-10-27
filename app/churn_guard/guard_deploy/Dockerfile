@@ -12,4 +12,6 @@ COPY app.py .
 
 EXPOSE 9696
 
-ENTRYPOINT [ "gunicorn", "--bind=0.0.0.0:9696", "app:app" ]
+# ENTRYPOINT [ "gunicorn", "--bind=0.0.0.0:9696", "app:app" ]
+
+ENTRYPOINT [ "python", "app.py" ]

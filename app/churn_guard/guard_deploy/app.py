@@ -6,12 +6,26 @@ import pandas as pd
 
 
 from dotenv import load_dotenv
+from sqlalchemy import create_engine
 
 from prefect import task, flow
 from flask import Flask, request, jsonify
 from mlflow.tracking import MlflowClient
 
 load_dotenv()
+
+dbname = os.getenv("DBNAME")
+username = os.getenv("MYSQL_USERNAME")
+password = os.getenv("MYSQL_PASSWORD")
+hostname = os.getenv("HOSTNAME")
+
+engine = create_engine(
+    f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"
+)
+
+
+tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
+client = MlflowClient(tracking_uri=tracking_uri)
 
 
 @task(name="Connect to s3 bucket")
@@ -27,33 +41,25 @@ def connect_bucket(
     return s3_bucket
 
 
-@task(name="Load model from s3 bucket")
-def load_model_from_s3(s3_bucket, bucket_name, file_name):
-
-    obj = s3_bucket.get_object(Bucket=bucket_name, Key=file_name)
-    model = obj["Body"].read()
-    model = pickle.loads(model)
-    return model
-
-
-tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
-client = MlflowClient(tracking_uri=tracking_uri)
-
-
-@task(name="Load model from mlflow artifact store")
-def load__mlflow_model(model_name, model_alias="Production"):
-
-    model_info = client.get_model_version_by_alias(model_name, model_alias)
-    model_id = model_info.run_id
-    model = mlflow.pyfunc.load_model(f"runs:/{model_id}/mlflow")
-    return model
-
-
-@task(name="Load input data")
-def load_data(data):
+@task(name="Load input data from path")
+def load_data_with_path(data):
 
     data = pd.DataFrame(data)
     return data
+
+
+@task(name="Load input data from database")
+def load_data_from_db(start_date=None, end_date=None):
+
+    tablename = "RawData"
+
+    if start_date:
+        query = f"SELECT * FROM {tablename} WHERE STR_TO_DATE(date, '%d/%M/%Y') BETWEEN {start_date} AND {end_date} "
+    else:
+        query = f"SELECT * FROM {tablename}"
+
+    df = pd.read_sql(query, con=engine)
+    return df
 
 
 @task(name="Process input data")
@@ -81,6 +87,24 @@ def output_data_processing(customer_id, prediction):
     data_frame["churn"] = data_frame["churn"].astype("int")
 
     return data_frame
+
+
+@task(name="Load model from s3 bucket")
+def load_model_from_s3(s3_bucket, bucket_name, file_name):
+
+    obj = s3_bucket.get_object(Bucket=bucket_name, Key=file_name)
+    model = obj["Body"].read()
+    model = pickle.loads(model)
+    return model
+
+
+@task(name="Load model from mlflow artifact store")
+def load__mlflow_model(model_name, model_alias="Production"):
+
+    model_info = client.get_model_version_by_alias(model_name, model_alias)
+    model_id = model_info.run_id
+    model = mlflow.pyfunc.load_model(f"runs:/{model_id}/mlflow")
+    return model
 
 
 @task(name="Upload Prediction")
@@ -128,11 +152,12 @@ def predict():
 
     data = request.get_json()
 
-    data = load_data(data)
+    data = load_data_with_path(data)
     customer_id, record = input_data_processing(data)
-    record = record.to_dict(orient="records")
 
+    record = record.to_dict(orient="records")
     prediction = model.predict(record)
+
     output = output_data_processing(customer_id, prediction)
     output.to_csv("prediction.csv", index=False)
     upload_prediction_to_s3(s3_bucket, "prediction.csv", bucket_name, "prediction.csv")
@@ -142,5 +167,5 @@ def predict():
     )
 
 
-# if __name__ == "__main__":
-#     app.run(debug=True, port=9696)
+if __name__ == "__main__":
+    app.run(debug=True, port=9696)

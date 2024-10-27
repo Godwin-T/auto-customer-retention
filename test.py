@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 
-url = "http://127.0.0.1:9696/predict"
+url = "https://retention.zapto.org/predict"
 
 data_path = "./data/raw_data/Churn.csv"
 data = pd.read_csv(data_path)

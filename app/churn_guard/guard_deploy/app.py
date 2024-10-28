@@ -150,10 +150,13 @@ def check_resources():
 @flow(name="Prediction Flow")
 def predict():
 
+    print("============================================")
     data = request.get_json()
 
     data = load_data_with_path(data)
     customer_id, record = input_data_processing(data)
+
+    print("===================================================")
 
     record = record.to_dict(orient="records")
     prediction = model.predict(record)
@@ -168,4 +171,4 @@ def predict():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=9696)
+    app.run(debug=True, port=9696, host="0.0.0.0")

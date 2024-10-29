@@ -64,7 +64,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y mysql-client
-        mysql -h $HOSTNAME -u test -p'$MYSQL_PASSWORD" -e 'SHOW DATABASES;'
+        mysql -h $HOSTNAME -u test -p'$MYSQL_PASSWORD' -e 'SHOW DATABASES;'
 
 
     - name: Run Script

@@ -54,7 +54,7 @@ def load_data_from_db(start_date=None, end_date=None):
     tablename = "RawData"
 
     if start_date:
-        query = f"SELECT * FROM {tablename} WHERE STR_TO_DATE(date, '%d/%M/%Y') BETWEEN {start_date} AND {end_date} "
+        query = f"SELECT * FROM {tablename} WHERE date BETWEEN '{start_date}' AND '{end_date}' "
     else:
         query = f"SELECT * FROM {tablename}"
 

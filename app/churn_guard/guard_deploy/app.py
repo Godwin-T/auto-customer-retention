@@ -140,6 +140,7 @@ def initialize_resources():
 
 @app.before_request
 def check_resources():
+    print("======================Resource initilized===========================")
     global resources_initialized
     if not resources_initialized:
         initialize_resources()
@@ -168,7 +169,3 @@ def predict():
     return jsonify(
         {"Response": "The predictions have successfully been saved to database"}
     )
-
-
-if __name__ == "__main__":
-    app.run(debug=True, port=9696, host="0.0.0.0")

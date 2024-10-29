@@ -54,11 +54,11 @@ jobs:
         echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> $GITHUB_ENV
 
 
-    # - name: Test MySQL Connection
-    #   run: |
-    #     sudo apt-get update
-    #     sudo apt-get install -y mysql-client
-    #     mysql -h $HOSTNAME -u $MYSQL_USERNAME -p$MYSQL_PASSWORD -e 'SHOW DATABASES;'
+    - name: Test MySQL Connection
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mysql-client
+        mysql -h $HOSTNAME -u $MYSQL_USERNAME -p"$MYSQL_PASSWORD" -e 'SHOW DATABASES;'
 
 
     - name: Run Script

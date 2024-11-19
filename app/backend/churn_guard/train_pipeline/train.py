@@ -5,12 +5,11 @@ import pandas as pd
 from prefect import task, flow
 from dotenv import load_dotenv
 
-
 from sklearn.model_selection import train_test_split
 
-from app.churn_guard.utils.evaluate import evaluate_model
-from app.churn_guard.utils.modelhelper import train_model, save_model_to_dir
-from app.churn_guard.utils.datahelper import load_data_from_relational_db
+from app.churn_guard import evaluate_model
+from app.churn_guard import train_model, save_model_to_dir
+from app.churn_guard import load_data_from_relational_db
 
 load_dotenv()
 

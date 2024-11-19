@@ -9,7 +9,7 @@ from sklearn.pipeline import make_pipeline
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction import DictVectorizer
-from app.churn_guard.utils.evaluate import evaluate
+from app.backend.churn_guard import evaluate
 
 load_dotenv()
 

@@ -3,7 +3,7 @@ import pandas as pd
 from typing import List
 from prefect import task, flow
 from dotenv import load_dotenv
-from app.churn_guard.utils.datahelper import save_dataframe_to_relational_db
+from app.churn_guard import save_dataframe_to_relational_db
 
 load_dotenv()
 

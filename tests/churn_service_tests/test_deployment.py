@@ -4,7 +4,7 @@ import pickle
 import pandas as pd
 import pkg_resources
 from moto import mock_aws
-from app.churn_guard.guard_deploy.app import (
+from app.backend.churn_guard import (
     load_data_with_path,
     input_data_processing,
     output_data_processing,

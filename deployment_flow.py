@@ -1,6 +1,6 @@
 from prefect import flow
-from app.churn_guard.utils.process_data import data_processing_pipeline
-from app.churn_guard.train_pipeline.train import training_pipeline
+from app.backend.churn_guard import data_processing_pipeline
+from app.backend.churn_guard import training_pipeline
 
 
 @flow

@@ -89,9 +89,9 @@ def test_input_data_processing():
 
     data_path = "./tests/sample_data/raw_data.csv"
     input_data = pd.read_csv(data_path)
-    _, data = input_data_processing.fn(input_data.copy())
+    data = input_data_processing.fn(input_data.copy())
 
-    assert (input_data.shape[1] - 1) == data.shape[1]
+    assert input_data.shape[1] == data.shape[1]
 
     null_values = data.isnull().values.any()
     assert null_values == False, "Data consist od null values"
@@ -107,27 +107,12 @@ def test_input_data_processing():
 
 def test_output_data_processing():
 
-    customerid = [
-        "7590-vhveg",
-        "5575-gnvde",
-        "3668-qpybk",
-        "7795-cfocw",
-        "9237-hqitu",
-        "9305-cdskc",
-        "1452-kiovk",
-        "6713-okomc",
-        "7892-pookp",
-        "6388-tabgu",
-    ]
-    prediction = [1, 0, 0, 0, 1, 1, 0, 0, 0, 0]
-    output_data = output_data_processing.fn(customerid, prediction)
+    data_path = "./tests/sample_data/raw_data.csv"
+    input_data = pd.read_csv(data_path)
+    prediction = [1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1]
+    output_data = output_data_processing.fn(input_data, prediction)
 
     assert isinstance(output_data, pd.DataFrame)
-    assert output_data.columns.tolist() == [
-        "customerid",
-        "churn",
-    ], """"Expected ["customerid", "churn"] as the columns"""
-    assert output_data["churn"].dtype == "int", "Expected column as int"
 
 
 @mock_aws

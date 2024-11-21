@@ -72,21 +72,18 @@ def input_data_processing(data):
     categorical_col = data.dtypes[data.dtypes == "object"].index.tolist()
     for col in categorical_col:
         data[col] = data[col].str.replace(" ", "_").str.lower()
-    customer_id = data.pop("customerid")
 
-    return customer_id, data
+    return data
 
 
 @task(name="Process output data")
-def output_data_processing(customer_id, prediction):
+def output_data_processing(data, prediction):
 
-    dicts = {"customerid": customer_id, "churn": prediction}
-    data_frame = pd.DataFrame(dicts)
+    data["churn"] = prediction
+    output_data_frame = data[data["churn"] >= 0.6]
+    output_data_frame.drop(["churn"], axis=1, inplace=True)
 
-    data_frame = data_frame[data_frame["churn"] >= 0.6]
-    data_frame["churn"] = data_frame["churn"].astype("int")
-
-    return data_frame
+    return output_data_frame
 
 
 @task(name="Load model from s3 bucket")
@@ -152,18 +149,19 @@ def check_resources():
 def predict():
 
     print("============================================")
-    data = request.get_json()
+    data_path = request.get_json()
 
-    data = load_data_with_path(data)
-    customer_id, record = input_data_processing(data)
+    dataframe = load_data_with_path(data_path)
+    dataframe = input_data_processing(dataframe)
+    model_data = dataframe.drop(["customerid"], axis=1)
 
     print("===================================================")
 
-    record = record.to_dict(orient="records")
-    prediction = model.predict(record)
+    record_dicts = model_data.to_dict(orient="records")
+    prediction = model.predict(record_dicts)
 
-    output = output_data_processing(customer_id, prediction)
-    output.to_csv("prediction.csv", index=False)
+    output_frame = output_data_processing(dataframe, prediction)
+    output_frame.to_csv("prediction.csv", index=False)
     upload_prediction_to_s3(s3_bucket, "prediction.csv", bucket_name, "prediction.csv")
 
     return jsonify(

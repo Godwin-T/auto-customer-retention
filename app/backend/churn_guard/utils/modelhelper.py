@@ -3,13 +3,13 @@ import pickle
 import mlflow
 
 import mlflow.entities
-from prefect import task
-from dotenv import load_dotenv
-from sklearn.pipeline import make_pipeline
-
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction import DictVectorizer
-from app.backend.churn_guard import evaluate
+
+from prefect import task
+from .evaluate import evaluate
+from dotenv import load_dotenv
+from sklearn.pipeline import make_pipeline
 
 load_dotenv()
 

@@ -2,7 +2,7 @@ import os
 from prefect import task, flow
 from dotenv import load_dotenv
 from mlflow.tracking import MlflowClient
-from app.churn_guard.utils.validate import compare_metrics, get_metrics
+from .validate import compare_metrics, get_metrics
 
 load_dotenv()
 

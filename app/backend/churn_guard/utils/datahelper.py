@@ -4,11 +4,14 @@ import sqlite3
 import argparse
 import pandas as pd
 from typing import List
-from pymongo import MongoClient
 from datetime import datetime
+from pymongo import MongoClient
+
+
+from prefect import task
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
-from prefect import task
+
 
 load_dotenv()
 

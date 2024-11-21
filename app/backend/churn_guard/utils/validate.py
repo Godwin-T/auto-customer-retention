@@ -3,7 +3,7 @@ import json
 
 from prefect import task
 from dotenv import load_dotenv
-from app.churn_guard.utils.evaluate import evaluate_model
+from .evaluate import evaluate_model
 
 load_dotenv()
 

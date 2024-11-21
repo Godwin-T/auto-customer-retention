@@ -97,7 +97,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:src/backend/churn_guard/guard_deploy"
+          context: "{{defaultContext}}:src/backend/churn_guard/deploy"
           push: true
           tags: freshinit/fresh:${{ github.sha }}
           build-args: |

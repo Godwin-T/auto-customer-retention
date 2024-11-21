@@ -172,7 +172,7 @@ def test_upload_file_to_s3():
 
 def test_required_dependencies():
 
-    with open("./src/backend/churn_guard/guard_deploy/requirements.txt") as f:
+    with open("./src/backend/churn_guard/deploy/requirements.txt") as f:
         required = f.read().splitlines()
 
     installed = [pkg.key for pkg in pkg_resources.working_set]

@@ -12,8 +12,8 @@ from sklearn.feature_extraction import DictVectorizer
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
-from app.backend.churn_guard import process_data, evaluate, save_model_to_dir
-from app.backend.churn_guard import (
+from src.backend.churn_guard import process_data, evaluate, save_model_to_dir
+from src.backend.churn_guard import (
     load_data_from_sqlite_db,
     load_data_from_mysql_db,
     create_mysql_database_table,

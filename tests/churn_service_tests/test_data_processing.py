@@ -1,5 +1,5 @@
 import pandas as pd
-from app.backend.churn_guard import load_dataset, process_dataset
+from src.backend.churn_guard import load_dataset, process_dataset
 
 
 def test_load_dataset():

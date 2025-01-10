@@ -8,6 +8,9 @@ COPY requirements.txt .
 
 RUN pip install -r requirements.txt
 
+RUN --mount=type=cache,target=/root/.cache/pip/http \
+    python3 -m pip install -U pip==${PIP_VERSION}
+
 COPY app.py .
 
 EXPOSE 9696

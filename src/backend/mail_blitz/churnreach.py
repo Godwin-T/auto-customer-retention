@@ -1,18 +1,15 @@
 import os
+import sqlite3
 import requests
 import pandas as pd
 
 from langchain_groq import ChatGroq
 from crewai import Agent, Task, Crew, Process, LLM
 
-from sqlalchemy import create_engine
-from langchain_community.utilities import SQLDatabase
-
-
 from typing import List
-from langchain_core.prompts import PromptTemplate
 from dotenv import load_dotenv
 
+from src.backend.mail_blitz.utils import instantiate_db, fetch_table
 from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
 
 from langchain_core.tools import tool
@@ -23,31 +20,35 @@ from langchain_community.tools.sql_database.tool import (
     QuerySQLDataBaseTool,
 )
 
+
 load_dotenv()
 
 groq_key = os.getenv("GROQ_API_KEY")
 os.environ["OPENAI_API_KEY"] = "Your Key"
 
-
-def pull_data(data):
-
-    db_path = "local.db"
-
-    if os.path.exists(db_path):
-        engine = create_engine(f"sqlite:///{db_path}")
-    else:
-        df = pd.read_csv(data)
-        engine = create_engine("sqlite:///local.db")
-        df.to_sql("customers", engine, index=False)
-    db = SQLDatabase(engine=engine)
-    return db
-
-
 llm_ = ChatGroq(api_key=groq_key, model="llama3-70b-8192")
 agent_llm = LLM(model="groq/llama3-8b-8192", api_key=groq_key)
 
-data_path = "/home/godwin/Documents/Workflow/Customer-retention/data/raw_data/Churn.csv"
-db = pull_data(data_path)
+customer_data_path = (
+    "/home/godwin/Documents/Workflow/Customer-retention/data/raw_data/Churn.csv"
+)
+prediction_data_path = (
+    "/home/godwin/Documents/Workflow/Customer-retention/prediction.csv"
+)
+
+
+def pandas_retriever():
+
+    churn_table = fetch_table(tablename="customerchurn")
+    customer_table = fetch_table(tablename="customera")
+    pandas_agent = create_pandas_dataframe_agent(
+        llm_, [churn_table, customer_table], allow_dangerous_code=True
+    )
+    return pandas_agent
+
+
+db = instantiate_db(customer_data_path, prediction_data_path)
+pandas_agent = pandas_retriever()
 
 
 @tool("list_tables")
@@ -119,53 +120,80 @@ def email_draft_generator(query: str):
     return email_draft
 
 
-@tool("dataframe_retriever")
-def dataframe_retriever(query, table) -> str:
-    """Anwser questions asked by the use from the dataframe"""
+@tool("retriever")
+def retriver(query: dict) -> str:
+    """
+    Anwser questions asked by the user.
+    """
 
-    prompt_template = """You are an information retriever and a very good one at that. You are to retrieve substantial
-                      information from the table can be used along side this '{query}' to genarate a good promotional mail."""
-    prompt = PromptTemplate(template=prompt_template, input_variables=["query"])
-    prompt = prompt.format(query=query)
+    response = pandas_agent.invoke(input=query["description"])
+    return response["output"]
 
-    agent = create_pandas_dataframe_agent(llm_, table, verbose=True)
-    response = agent.invoke(prompt)
+
+@tool("make_churn_prediction")
+def make_inference(query: str):
+    """
+    Use this tool to perform inference on data from a specified date range.
+
+    Retrieves data for the given date range from a database with the input sql query, sends it to an inference
+    endpoint for prediction, and prints the response.
+    """
+
+    conn = sqlite3.connect("local.db")
+    print("========================================")
+    print(query)
+    # query = f"SELECT * FROM customers"
+    dataf = pd.read_sql(query, conn)
+    dataf_dicts = dataf.to_dict()
+    inference_endpoint = "http://127.0.0.1:9696/predict"
+
+    response = requests.post(inference_endpoint, json=dataf_dicts).json()
     return response
 
 
-@tool("fetch_churn_table")
-def fetch_churn_table():
+@tool("pull_prediction_data")
+def pull_prediction_data():
 
     """
-    Retrieves all records from the 'customer_churn' table in the MySQL database.
+    Fetch the churn prediction table for analysis after the inference is complete.
+
+    Returns:
+        DataFrame: The retrieved churn table data.
     """
-
-    username = os.getenv("DBUSERNAME")
-    password = os.getenv("DBPASSWORD")
-    hostname = os.getenv("HOSTNAME")
-    dbname = os.getenv("DBNAME")
-
-    tablename = "customer_churn"
-    engine = create_engine(
-        f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"
-    )
-    query = f"SELECT * FROM {tablename}"
-    dataf = pd.read_sql(query, engine)
+    dataf = fetch_table(tablename="customerchurn")
     return dataf
 
 
-def query_or_mail(user_query):
+@tool("pull_customer_data")
+def pull_customer_data():
 
-    prompt_template = "Is this '{query}' to generate a mail or asking a database questions? Repond with a Yes or No."
-    prompt = PromptTemplate(template=prompt_template, input_variables=["query"])
-    prompt = prompt.format(query=user_query)
-    response = llm_.invoke(prompt).content
-    return response
+    """
+    Fetches the customer data from the database for making predictions.
 
+    Returns:
+        DataFrame: The customers data table.
+    """
+    dataf = fetch_table(tablename="customers")
+    return dataf
+
+
+churn_predictor = Agent(
+    role="Customer manager",
+    goal="Send data to a predition endpoint and get the prediction response",
+    verbose=True,
+    backstory=(
+        "As a proactive customer manager, you specialize in facilitating seamless predictions to aid decision-making. "
+        "You efficiently send data to prediction endpoints, and ensure the response is accurate and actionable, "
+        "driving insights that enhance customer retention strategies."
+    ),
+    tools=[pull_customer_data, make_inference, pull_prediction_data],
+    llm=agent_llm,
+    allow_delegation=False,
+)
 
 database_administator = Agent(
     role="SQL Specialist",
-    goal="Develop, optimize, and execute efficient SQL queries that provide comprehensive answers to {query}",
+    goal="Develop, optimize, and execute efficient SQL queries that provide comprehensive answers to queries",
     verbose=True,
     backstory=(
         "Driven by an unwavering curiosity for the depths of data, you excel at designing intricate queries tailored to "
@@ -184,9 +212,8 @@ data_analyst = Agent(
         "Inspired by the potential of historical data, you merge curiosity and analytical acumen to identify trends "
         "and empower businesses with impactful, data-backed recommendations."
     ),
-    tools=[dataframe_retriever],
     llm=agent_llm,
-    allow_delegation=True,
+    allow_delegation=False,
 )
 
 reporter = Agent(
@@ -215,23 +242,18 @@ admin_secretary = Agent(
     allow_delegation=False,
 )
 
-customer_care = Agent(
-    role="Data Retriver",
-    goal="Get data from a database and extracts information from it",
-    backstory="",
-    tools=[fetch_churn_table, dataframe_retriever],
+customer = Agent(
+    role="Answer Architect",
+    goal="Respond to this '{query}'",
+    backstory=(
+        """You thrive on clarity and precision, tailoring responses that directly address the query at hand while
+            ensuring accuracy and relevance."""
+    ),
+    tools=[retriver],
     llm=agent_llm,
     allow_delegation=False,
+    verbose=True,
 )
-
-public_relations = Agent(
-    role="Promotional mail writer",
-    goal="Write promational mails to be sent to customers in a telecommunication company based on the provided information",
-    backstory="",
-    llm=agent_llm,
-    allow_delegation=False,
-)
-
 
 # Research task
 research = Task(
@@ -242,7 +264,7 @@ research = Task(
         and ensure query accuracy using `check_sql`. Deliver a well-organized data for analysis.
         """
     ),
-    expected_output="A well-organized tabular data retrieved from executed SQL queries.",
+    expected_output="A well-organized tabular data retrieved from executed SQL queries together with the executed code",
     tools=[list_tables, tables_schema, execute_sql, check_sql],
     agent=database_administator,
 )
@@ -275,7 +297,6 @@ report = Task(
     tools=[write_report],
 )
 
-
 executive_mailing = Task(
     description=(
         """
@@ -290,36 +311,28 @@ executive_mailing = Task(
     tools=[email_draft_generator],
 )
 
-predictions_information = Task(
+churn = Task(
     description=(
-        """
-        You are a data analyst responsible for extracting and summarizing customer churn information to support the creation of personalized emails.
-        The input consists of information of churning customers retrieved from customer churn records.
-        Your role is to analyze this data, identify key insights, and deliver a concise, actionable summary that highlights the essential information
-        for crafting targeted customer communications together with the information given.
-
-        The summary should be clear, precise, and suitable for generating customer engagement strategies.
-        """
+        """You are a question and answer personnel. Use the reponder tool to get your answers"""
     ),
-    expected_output="A consice summary of the information that will be used to generate customer mails",
-    agent=customer_care,
-    tools=[fetch_churn_table, dataframe_retriever],
+    expected_output="A good and concise response to the question",
+    agent=churn_predictor,
+    tools=[retriver],
 )
 
-customer_mailing = Task(
+chr_pred = Task(
     description=(
-        """You are a customer faced promotional email writer know for for crafting concise and engaging email for the companies customers. You
-        are to write a promtional mail to the company customers based on the information you are provided with.
-        Your emails are clear, purposeful, and effectively communicate the intent of the company of its customers.
-        The final output should be polished, professional, and ready for use."""
+        """You are a network guy. You send data to a prediction endpoint and get a response on the churn data that was predicted"""
     ),
-    expected_output="A well-crafted promotional email reviewed and approved by the user for the customers.",
-    agent=public_relations,
+    expected_output="A tabular data containing customer possibility of churning",
+    agent=churn_predictor,
+    tools=[make_inference, pull_prediction_data],
 )
+
 
 executives_crew = Crew(
-    agents=[database_administator, data_analyst, reporter, admin_secretary],
-    tasks=[research, analyse, report, executive_mailing],
+    agents=[database_administator, data_analyst, reporter],
+    tasks=[research, analyse, report],
     process=Process.sequential,
     memory=True,
     cache=True,
@@ -329,11 +342,21 @@ executives_crew = Crew(
 )
 
 customer_crew = Crew(
-    agents=[customer_care, public_relations],
-    tasks=[predictions_information, customer_mailing],
+    agents=[churn_predictor],
+    tasks=[churn],
+    max_rpm=100,
+    planning=True,
+    # verbose=True,
+    planning_llm=ChatGroq(api_key=groq_key, model="groq/llama3-8b-8192"),
+)
+
+prediction_crew = Crew(
+    agents=[churn_predictor, data_analyst, reporter],
+    tasks=[chr_pred, analyse, report],
     process=Process.sequential,
     memory=True,
     cache=True,
+    verbose=True,
     max_rpm=100,
     planning=True,
     planning_llm=ChatGroq(api_key=groq_key, model="groq/llama3-8b-8192"),

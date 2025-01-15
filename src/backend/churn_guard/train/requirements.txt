@@ -1,7 +1,0 @@
-boto3
-numpy
-pandas
-mlflow
-prefect==2.14.9
-pymongo
-scikit-learn

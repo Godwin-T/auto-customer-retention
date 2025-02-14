@@ -3,237 +3,236 @@ import time
 import sqlite3
 import argparse
 import pandas as pd
-from typing import List
 from datetime import datetime
 from pymongo import MongoClient
-
-
+from typing import Union, Tuple, Optional
 from prefect import task
-from sqlalchemy import create_engine
 from dotenv import load_dotenv
-
+from sqlalchemy import create_engine
+from sqlalchemy.engine.base import Engine
 
 load_dotenv()
 
-try:
 
-    parser = argparse.ArgumentParser(description="To get database credentials")
+def create_mysql_engine() -> Optional[Engine]:
+    """Create and return a MySQL connection engine using environment variables or command line arguments."""
 
-    parser.add_argument("--host", default="Unknown", help="host name")
-    parser.add_argument("--dbname", default="Unknown", help="host name")
-    parser.add_argument("--username", default="Unknown", help="host name")
-    parser.add_argument("--passkey", default="Unknown", help="host name")
+    parser = argparse.ArgumentParser(description="Get database credentials")
+    parser.add_argument("--host", default=None, help="Database hostname")
+    parser.add_argument("--dbname", default=None, help="Database name")
+    parser.add_argument("--username", default=None, help="Database username")
+    parser.add_argument("--passkey", default=None, help="Database password")
 
     args = parser.parse_args()
 
-    if args.host == "Unknown":
+    # Use command line args if provided, otherwise use environment variables
+    hostname = args.host or os.getenv("HOSTNAME")
+    dbname = args.dbname or os.getenv("DBNAME")
+    username = args.username or os.getenv("MYSQL_USERNAME")
+    password = args.passkey or os.getenv("MYSQL_PASSWORD")
 
-        dbname = os.getenv("DBNAME")
-        username = os.getenv("MYSQL_USERNAME")
-        password = os.getenv("MYSQL_PASSWORD")
-        hostname = os.getenv("HOSTNAME")
-    else:
-        dbname = args.dbname
-        username = args.userame
-        password = args.passkey
-        hostname = args.host
+    # Check if all required parameters are available
+    if not all([hostname, dbname, username, password]):
+        print("Missing required database connection parameters")
+        return None
 
-    engine = create_engine(
+    connection_string = (
         f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"
     )
+    engine = create_engine(connection_string)
 
-except:
-    """"""
-
-
-# @task(name="Push data to mongodb")
-def push_data_tomongo(path, dbname, dbcollection):
-
-    client = MongoClient("localhost", "27017")
-    db = client[dbname]
-    collection = db[dbcollection]
-
-    # Load CSV file into DataFrame
-    df = pd.read_csv(path)
-    df["log_time"] = time.time()
-
-    # Convert DataFrame to dictionary
-    data = df.to_dict(orient="records")
-
-    # Insert data into MongoDB collection
-    collection.insert_many(data)
-
-    print("Data imported successfully!")
+    # Test connection
+    try:
+        with engine.connect() as connection:
+            print("Connection successful!")
+            return engine
+    except Exception as e:
+        print(f"Connection failed: {e}")
+        return None
 
 
-# @task(name="Load data from mongodb")
-def load_data_from_mongodb(dbname, dbcollection):
-
-    client = MongoClient("localhost", "27017")
-    db = client[dbname]
-    collection = db[dbcollection]
-
-    data = collection.find()
-    return data
+def connect_sqlite(db_path: str) -> sqlite3.Connection:
+    """Create and return a SQLite connection."""
+    try:
+        return sqlite3.connect(db_path)
+    except Exception as e:
+        print(f"Error connecting to SQLite: {str(e)}")
+        raise
 
 
-# @task(name="Update mongodb data")
-def insert_collection_to_mongbdb(dbname, dbcollection, data):
+def get_engine() -> Tuple[Union[Engine, sqlite3.Connection], str]:
+    """Get appropriate database engine based on availability."""
+    sql_engine = create_mysql_engine()
 
-    client = MongoClient("localhost", 27017)
-    db = client[dbname]
+    if sql_engine:
+        return sql_engine, "mysql"
+    else:
+        print("Falling back to SQLite database")
+        dbname = "local.db"
+        return connect_sqlite(dbname), "sqlite"
 
-    collection = db[dbcollection]
-    update = {"$set": {"Metrics": data}}
-    collection.update_one({}, update)
+
+# Initialize database connection once
+db_engine, db_type = get_engine()
+
+# @task(name="Create table")
+def create_table(tablename: str, dfpath: str) -> None:
+    """Create a new table from CSV data with timestamp."""
+    try:
+        now = datetime.now()
+        formatted_date = now.strftime("%Y-%m-%d")
+
+        df = pd.read_csv(dfpath)
+        df["log_time"] = formatted_date
+
+        if db_type == "sqlite":
+            df.to_sql(tablename, db_engine, if_exists="fail", index=False)
+        else:
+            df.to_sql(name=tablename, con=db_engine, if_exists="append", index=False)
+
+        print(f"Successfully created/updated table '{tablename}'")
+    except Exception as e:
+        print(f"Error creating table: {str(e)}")
 
 
-# @task(name="Push data to sqlite")
-def save_dataframe_to_sqlite(db_directory, dbname, tablename, dfpath=None, data=None):
+# @task(name="Push data to MongoDB")
+def push_data_to_mongo(path: str, dbname: str, collection_name: str) -> None:
+    """Import CSV data into MongoDB collection with timestamp."""
+    try:
+        client = MongoClient("localhost", 27017)
+        db = client[dbname]
+        collection = db[collection_name]
 
-    now = datetime.now()
-    formatted_date = now.strftime("%Y-%m-%d")
+        # Load CSV file into DataFrame
+        df = pd.read_csv(path)
+        df["log_time"] = time.time()
 
-    if dfpath:
+        # Convert DataFrame to dictionary and insert
+        data = df.to_dict(orient="records")
+        collection.insert_many(data)
 
-        data = pd.read_csv(dfpath)
+        print(f"Successfully imported data to MongoDB collection '{collection_name}'")
+    except Exception as e:
+        print(f"Error pushing data to MongoDB: {str(e)}")
+
+
+# @task(name="Pull data from MongoDB")
+def pull_data_from_mongo(dbname: str, collection_name: str) -> list:
+    """Retrieve all documents from a MongoDB collection."""
+    try:
+        client = MongoClient("localhost", 27017)
+        db = client[dbname]
+        collection = db[collection_name]
+
+        return list(collection.find())
+    except Exception as e:
+        print(f"Error pulling data from MongoDB: {str(e)}")
+        return []
+
+
+# @task(name="Update MongoDB data")
+def update_mongo_collection(dbname: str, collection_name: str, data: dict) -> None:
+    """Update the 'Metrics' field in the first document of a collection."""
+    try:
+        client = MongoClient("localhost", 27017)
+        db = client[dbname]
+        collection = db[collection_name]
+
+        update = {"$set": {"Metrics": data}}
+        result = collection.update_one({}, update)
+
+        if result.matched_count == 0:
+            print("No documents found to update")
+        else:
+            print(f"Successfully updated {result.modified_count} document(s)")
+    except Exception as e:
+        print(f"Error updating MongoDB collection: {str(e)}")
+
+
+# @task(name="Push data to database")
+def push_data_to_db(
+    tablename: str, dfpath: str = None, data: pd.DataFrame = None
+) -> None:
+    """Save data to the configured database."""
+    try:
+        now = datetime.now()
+        formatted_date = now.strftime("%Y-%m-%d")
+
+        # Load data from file or use provided DataFrame
+        if dfpath:
+            data = pd.read_csv(dfpath)
+
+        if data is None:
+            raise ValueError("Either dfpath or data must be provided")
+
         data["date"] = formatted_date
 
-    else:
-        data.loc[:, "date"] = formatted_date
+        print(db_type)
+        if db_type == "sqlite":
+            data.to_sql(tablename, db_engine, if_exists="append", index=False)
+        else:
+            data.to_sql(name=tablename, con=db_engine, if_exists="append", index=False)
 
-    print("==============================================")
-    print(db_directory, dbname)
-    db_path = os.path.join(db_directory, dbname)
-    conn = sqlite3.connect(db_path)
-
-    data.to_sql(tablename, conn, if_exists="append", index=False)
-    conn.close()
-
-
-# @task(name="Push data to sqlite")
-def save_dataframe_to_mysql(sql_engine, tablename, dfpath=None, data=None):
-
-    now = datetime.now()
-    formatted_date = now.strftime("%Y-%m-%d")
-
-    if dfpath:
-
-        data = pd.read_csv(dfpath)
-        data["date"] = formatted_date
-
-    else:
-        data["date"] = formatted_date
-
-    # Save the DataFrame to MySQL
-    data.to_sql(name=tablename, con=sql_engine, if_exists="append", index=False)
+        print(f"Successfully pushed data to '{tablename}' table")
+    except Exception as e:
+        print(f"Error pushing data to database: {str(e)}")
 
 
-# @task(name="Update sqlite data")
-def insert_record(dbname, tablename, record: tuple):
+# @task(name="Pull data from database")
+def pull_data_from_db(tablename: str) -> Optional[pd.DataFrame]:
+    """Retrieve all data from a database table."""
+    try:
+        query = f"SELECT * FROM {tablename}"
 
-    conn = sqlite3.connect(dbname)
-    cursor = conn.cursor()
-    cursor.execute(f"INSERT INTO {tablename} {(record)}")
-
-    conn.commit()
-    conn.close()
-
-
-# @task(name="Create sqlite database table")
-def create_sqlite_database_table(dbname, tablename, dfpath):
-
-    now = datetime.now()
-    formatted_date = now.strftime("%Y-%m-%d")
-    df = pd.read_csv(dfpath)
-    df["log_time"] = formatted_date
-
-    conn = sqlite3.connect(dbname)
-    df.to_sql(tablename, conn, if_exists="fail", index=False)
-    conn.close()
+        if db_type == "sqlite":
+            return pd.read_sql(query, db_engine)
+        else:
+            return pd.read_sql(query, con=db_engine)
+    except Exception as e:
+        print(f"Error pulling data from database: {str(e)}")
+        return None
 
 
-# @task(name="Create mysql database table")
-def create_mysql_database_table(sql_engine, dfpath, tablename):
-
-    now = datetime.now()
-    formatted_date = now.strftime("%Y-%m-%d")
-
-    df = pd.read_csv(dfpath)
-    df["log_time"] = formatted_date
-    df.to_sql(
-        name=tablename, con=sql_engine, if_exists="append", index=False
-    )  # Save the DataFrame to MySQL
+def load_dataframe(filepath: str) -> pd.DataFrame:
+    """Load data from CSV file into a DataFrame."""
+    try:
+        return pd.read_csv(filepath)
+    except Exception as e:
+        print(f"Error loading dataframe from {filepath}: {str(e)}")
+        raise
 
 
-# @task(name="Load data from sqlite")
-def load_data_from_sqlite_db(db_directory, dbname, tablename):
+# @task(name="Process raw data")
+def process_dataframe(
+    dataframe: pd.DataFrame, target_col: str, drop_cols: list = None
+) -> pd.DataFrame:
+    """Clean and preprocess the dataframe for analysis."""
+    try:
+        # Create a copy to avoid modifying the original
+        df = dataframe.copy()
 
-    db_path = os.path.join(db_directory, dbname)
-    conn = sqlite3.connect(db_path)
-    query = f"SELECT * FROM {tablename}"
-    # Load data into a DataFrame
-    df = pd.read_sql(query, conn)
-    return df
+        # Clean column names
+        df.columns = df.columns.str.replace(" ", "_").str.lower()
 
+        # Clean categorical columns
+        categorical_cols = df.select_dtypes(include=["object"]).columns
+        for col in categorical_cols:
+            df[col] = df[col].str.replace(" ", "_").str.lower()
 
-# @task(name="Load data from mysql")
-def load_data_from_mysql_db(sql_engine, tablename):
+        # Drop specified columns
+        if drop_cols:
+            df = df.drop(drop_cols, axis=1)
 
-    query = f"SELECT * FROM {tablename}"
-    df = pd.read_sql(query, con=sql_engine)
-    return df
+        # Handle special case for totalcharges
+        if "totalcharges" in df.columns:
+            df = df[df["totalcharges"] != "_"]
+            df["totalcharges"] = df["totalcharges"].astype("float32")
 
+        # Convert target column to binary
+        if target_col in df.columns:
+            df[target_col] = (df[target_col] == "yes").astype(int)
 
-def save_dataframe_to_relational_db(
-    tablename,
-    dbprovider="sqlite",
-    db_directory=None,
-    dbname=None,
-    df_path=None,
-    data=None,
-):
-
-    if dbprovider == "sqlite":
-
-        save_dataframe_to_sqlite(db_directory, dbname, tablename, df_path, data)
-
-    else:
-
-        save_dataframe_to_mysql(engine, tablename, df_path, data)
-
-
-def load_data_from_relational_db(
-    dbprovider="sqlite", db_directory=None, dbname=None, tablename="ProcessedData"
-):
-
-    if dbprovider == "sqlite":
-
-        df = load_data_from_sqlite_db(db_directory, dbname, tablename)
-    else:
-        df = load_data_from_mysql_db(engine, tablename)
-
-    return df
-
-
-def read_dataset(filepath: str):
-
-    dataframe = pd.read_csv(filepath)
-    return dataframe
-
-
-def prepare_dataset(dataframe: pd.DataFrame, target_col, drop_cols=None):
-
-    dataframe.columns = dataframe.columns.str.replace(" ", "_").str.lower()
-    categorical_col = dataframe.dtypes[dataframe.dtypes == "object"].index.tolist()
-
-    for col in categorical_col:
-        dataframe[col] = dataframe[col].str.replace(" ", "_").str.lower()
-
-    dataframe = dataframe.drop(drop_cols, axis=1)
-    dataframe = dataframe[dataframe["totalcharges"] != "_"]
-
-    dataframe["totalcharges"] = dataframe["totalcharges"].astype("float32")
-    dataframe[target_col] = (dataframe[target_col] == "yes").astype(int)
-
-    return dataframe
+        return df
+    except Exception as e:
+        print(f"Error processing dataframe: {str(e)}")
+        raise

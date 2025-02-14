@@ -1,0 +1,40 @@
+# name: SSH test
+
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       username:
+#         required: true
+#         type: string
+#       command:
+#         required: true
+#         type: string
+#       ec2_instance_id:
+#         required: true
+#         type: string
+#       region:
+#         required: true
+#         type: string
+# permissions:
+#             id-token: write
+# jobs:
+#   run-ssh-command:
+#     runs-on: ubuntu-latest
+#     steps:
+#         - name: configure aws credentials
+#           uses: aws-actions/configure-aws-credentials@v4
+#           with:
+#             role-to-assume: ${{ secrets.YOUR_ROLE_ARN }}
+#             aws-region: ${{ inputs.region }}
+#         - name: Run SSH Command
+#           id: ssh-command
+#           uses: leonowski/ec2-ssh-ghactions@v1
+#           with:
+#             username: ${{ inputs.username }}
+#             command: ${{ inputs.command }}
+#             ec2_instance_id: ${{ inputs.ec2_instance_id }}
+#             region: ${{ inputs.region }}
+
+#         - name: Output
+#           run: |
+#             echo -e "${{ steps.ssh-command.outputs.command_output }}"

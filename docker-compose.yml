@@ -1,0 +1,81 @@
+
+version: "3.2"
+services:
+  mlflow:
+    image: bitnami/mlflow
+    ports:
+      - 5000:5000
+    environment:
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - AWS_ACCESS_KEY_ID=newtesting
+      - AWS_SECRET_ACCESS_KEY=newtesting
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    entrypoint: bash -c " mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root s3://mlflow/ --host 0.0.0.0"
+    volumes:
+      - /home/godwin/Documents/Workflow/Customer-retention/databases/mlflow:/mlflow
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import sys; from urllib.request import urlopen; sys.exit(1) if urlopen(\"http://localhost:5000/\").getcode() != 200 else sys.exit(0)'"]
+      interval: 30s
+      timeout: 10s
+      retries: 2
+
+  minio:
+    image: bitnami/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: ["server", "/data", "--console-address", ":9001", "--address", ":9000"]
+    environment:
+      - MINIO_ROOT_USER=newtesting
+      - MINIO_ROOT_PASSWORD=newtesting
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 2
+
+  train_pipeline:
+    build:
+      context: /home/godwin/Documents/Workflow/Customer-retention/ChurnGuard/training_pipeline
+      dockerfile: Dockerfile
+    ports:
+      - 5001:5000
+    entrypoint: ["/home/run.sh"]
+    volumes:
+      - /home/godwin/Documents/Workflow/Customer-retention/ChurnGuard/data/churn-data/raw_data/Telco-Customer-Churn.csv:/home/data/raw_data/Churn.csv
+      - /home/godwin/Documents/Workflow/Customer-retention/databases:/home/databases/
+      - /home/godwin/Documents/Workflow/Customer-retention/databases/mlruns/:/home/mlruns/
+      - /home/godwin/Documents/Workflow/Customer-retention/ChurnGuard/models/churn_model.pkl:/home/models/churn_model.pkl
+    environment:
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - AWS_ACCESS_KEY_ID=newtesting
+      - AWS_SECRET_ACCESS_KEY=newtesting
+    depends_on:
+      minio:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+
+  deployment:
+    build:
+      context: /home/godwin/Documents/Workflow/Customer-retention/ChurnGuard/deployment
+      dockerfile: Dockerfile
+    ports:
+      - 9696:9696
+    volumes:
+      -  /home/godwin/Documents/Workflow/Customer-retention/databases:/home/databases/
+    environment:
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - AWS_ACCESS_KEY_ID=newtesting
+      - AWS_SECRET_ACCESS_KEY=newtesting
+    # depends_on:
+    #   - train_pipeline
+
+
+volumes:
+  vol_mlflow:
+  minio_data:

@@ -1,10 +1,8 @@
 mlflow
 flask
-pymongo
 pandas
 numpy
 prefect
 boto3
 python-dotenv
-pymysql
-mysql-connector-python
+pysqlite3

@@ -6,43 +6,38 @@ import pandas as pd
 from datetime import datetime
 from pymongo import MongoClient
 from typing import Union, Tuple, Optional
-from prefect import task
+
+# from prefect import task
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
 
 load_dotenv()
 
+hostname = os.getenv("HOSTNAME")
+dbname = os.getenv("customer_db")
+dbpath = os.getenv("db_path")
+username = os.getenv("MYSQL_USERNAME")
+password = os.getenv("MYSQL_PASSWORD")
+
 
 def create_mysql_engine() -> Optional[Engine]:
     """Create and return a MySQL connection engine using environment variables or command line arguments."""
 
-    parser = argparse.ArgumentParser(description="Get database credentials")
-    parser.add_argument("--host", default=None, help="Database hostname")
-    parser.add_argument("--dbname", default=None, help="Database name")
-    parser.add_argument("--username", default=None, help="Database username")
-    parser.add_argument("--passkey", default=None, help="Database password")
-
-    args = parser.parse_args()
-
-    # Use command line args if provided, otherwise use environment variables
-    hostname = args.host or os.getenv("HOSTNAME")
-    dbname = args.dbname or os.getenv("DBNAME")
-    username = args.username or os.getenv("MYSQL_USERNAME")
-    password = args.passkey or os.getenv("MYSQL_PASSWORD")
-
-    # Check if all required parameters are available
-    if not all([hostname, dbname, username, password]):
-        print("Missing required database connection parameters")
-        return None
-
-    connection_string = (
-        f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"
-    )
-    engine = create_engine(connection_string)
-
-    # Test connection
     try:
+
+        # Check if all required parameters are available
+        if not all([hostname, dbname, username, password]):
+            print("Missing required database connection parameters")
+            return None
+
+        connection_string = (
+            f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbpath}"
+        )
+        engine = create_engine(connection_string)
+
+        # Test connection
+
         with engine.connect() as connection:
             print("Connection successful!")
             return engine
@@ -51,25 +46,26 @@ def create_mysql_engine() -> Optional[Engine]:
         return None
 
 
-def connect_sqlite(db_path: str) -> sqlite3.Connection:
+def connect_sqlite(dbpath: str) -> sqlite3.Connection:
     """Create and return a SQLite connection."""
     try:
-        return sqlite3.connect(db_path)
+        return sqlite3.connect(dbpath, check_same_thread=False)
     except Exception as e:
+        print(dbpath)
         print(f"Error connecting to SQLite: {str(e)}")
         raise
 
 
 def get_engine() -> Tuple[Union[Engine, sqlite3.Connection], str]:
     """Get appropriate database engine based on availability."""
-    sql_engine = create_mysql_engine()
+    # sql_engine = create_mysql_engine()
 
-    if sql_engine:
-        return sql_engine, "mysql"
-    else:
-        print("Falling back to SQLite database")
-        dbname = "local.db"
-        return connect_sqlite(dbname), "sqlite"
+    # if sql_engine:
+    #     return sql_engine, "mysql"
+    # else:
+    customer_data_path = f"{dbpath}/{dbname}"
+    # print("Falling back to SQLite database")
+    return connect_sqlite(customer_data_path), "sqlite"
 
 
 # Initialize database connection once
@@ -167,7 +163,6 @@ def push_data_to_db(
 
         data["date"] = formatted_date
 
-        print(db_type)
         if db_type == "sqlite":
             data.to_sql(tablename, db_engine, if_exists="append", index=False)
         else:

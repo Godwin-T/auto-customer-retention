@@ -1,0 +1,7 @@
+pyyaml
+flask
+pysqlite3
+pandas
+pymongo
+python-dotenv
+sqlalchemy

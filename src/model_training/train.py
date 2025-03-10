@@ -1,164 +1,330 @@
-# Importing Libraries
+# Import Libraries
+
 import os
-import json
-import pickle
+import yaml
 import mlflow
+import logging
+import argparse
 import pandas as pd
-import mlflow.entities
 
-from prefect import task, flow
-from dotenv import load_dotenv
+from hyperopt.pyll import scope
+from hyperopt import hp, STATUS_OK, fmin, Trials, tpe
 
-from sklearn.pipeline import make_pipeline
-from sklearn.linear_model import LogisticRegression
-from sklearn.feature_extraction import DictVectorizer
 from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction import DictVectorizer
 
-from ..utils.evaluate import evaluate_model
-from ..utils.modelhelper import train_model, save_model_to_dir
-from ..utils.datahelper import load_data_from_relational_db
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 
+# import xgboost as xgb
+from dotenv import load_dotenv
+from sklearn.pipeline import make_pipeline
+
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
+
+import warnings
+
+warnings.filterwarnings("ignore")
+from flask import Flask, request, jsonify
+from mlflow.tracking import MlflowClient
+from mlflow.entities import ViewType
+
+import mlflow.sklearn
 
 load_dotenv()
+config_path = os.getenv("config_path")
 
-# target_column = os.getenv("TARGET_COLUMN")
-db_dir = os.getenv("DB_DIRECTORY")
-
-db_name = os.getenv("DB_NAME")
-processed_dataset_name = os.getenv("PROCESSED_DATASET_NAME")
-processed_dataset = os.getenv("PROCESSED_DATASET")
-
-model_path = os.getenv("MODEL_PATH")
-tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
-experiment_name = os.getenv("EXPERIMENT_NAME")
-
-model_name = "Custormer-churn-models"
+logging.basicConfig(
+    filename="train.log",
+    level=logging.DEBUG,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
 
-@task(name="Process data")
-def process_data(data, target_column):
+def load_config(config_path):
 
-    # Load data
-    X = data.drop(target_column, axis=1)
-    y = data[target_column]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1993)
-    output = (X_train, X_test, y_train, y_test)
-    return output
+    global config, seed, developer, artifact_path
+    with open(config_path) as config:
+        config = yaml.safe_load(config)
+    seed = config["base"]["random_state"]
+    developer = config["base"]["developer"]
+    artifact_path = f"{config['base']['artifact_path']}"
 
 
-# Define Model Training Function
-@task(name="Train model")
-def train_model(
-    train_x,
-    train_y,
-    c_value=71,
-    tracking_uri=os.getenv("MLFLOW_TRACKING_URI"),
-    experiment_name="Customer_Churn_Prediction",
-):
-    # mlflow.delete_experiment(experiment_name)
-    try:
+load_config(config_path)
+mlflow.set_tracking_uri(config["tracking"]["tracking_url"])
+mlflow.set_experiment(config["tracking"]["experiment_name"])
+client = MlflowClient(tracking_uri=config["tracking"]["tracking_url"])
 
-        mlflow.create_experiment(
-            experiment_name, artifact_location="s3://mlflowartifactsdb/mlflow"
+# Load and Process Data
+
+
+def process_data():
+
+    data = pd.read_csv(config["data"]["process"]["path"])
+    dframe = data.copy()
+    y = dframe["churn"]
+    X = dframe.drop(["churn"], axis=1)
+    X = X.to_dict(orient="records")
+
+    output_dframe = train_test_split(
+        X, y, test_size=config["data"]["test_size"], random_state=seed
+    )
+    return output_dframe
+
+
+# Define Evaluation Function
+
+
+def evaluate_model(y_true, y_pred):
+
+    accuracy = accuracy_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred)
+    recall = recall_score(y_true, y_pred)
+    f1score = f1_score(y_true, y_pred)
+
+    out = {
+        "accuracy_score": accuracy,
+        "precision_score": precision,
+        "recall_score": recall,
+        "f1_score": f1score,
+    }
+    return out
+
+
+# Define Models
+
+
+def linear_model(data):
+
+    (train_x, test_x, train_y, test_y) = data
+    lr_params = config["hyperparameters"]["linear_model"]
+    c_values = range(lr_params["min_c"], lr_params["max_c"], lr_params["interval"])
+
+    for val in c_values:
+
+        with mlflow.start_run():
+            mlflow.set_tag("developer", developer)
+            mlflow.set_tag("model_name", "linearRegression")
+            mlflow.log_param("c", val)
+
+            lr_pipeline = make_pipeline(
+                DictVectorizer(sparse=False), LogisticRegression(C=val)
+            )
+            lr_pipeline.fit(train_x, train_y)
+
+            test_pred = lr_pipeline.predict(test_x)
+            test_output_eval = evaluate_model(test_y, test_pred)
+            mlflow.log_metrics(test_output_eval)
+            mlflow.sklearn.log_model(lr_pipeline, artifact_path=artifact_path)
+    print("Successfully Trained Linear Regression Models")
+
+
+class Tree:
+    def __init__(self, configurations, data):
+        self.config = configurations
+        self.train_x, self.test_x, self.train_y, self.test_y = data
+
+    def objective(self, params):
+
+        model_name = params["model_name"]
+        del params["model_name"]
+        with mlflow.start_run():
+            mlflow.set_tag("developer", developer)
+            mlflow.set_tag("model_name", model_name)
+            mlflow.log_params(params)
+
+            if model_name == "decisiontree":
+                pipeline = make_pipeline(
+                    DictVectorizer(sparse=False), DecisionTreeClassifier(**params)
+                )
+
+            elif model_name == "randomforest":
+                pipeline = make_pipeline(
+                    DictVectorizer(sparse=False), RandomForestClassifier(**params)
+                )
+
+            else:
+                print(f"{model_name} does not exist in models")
+
+            pipeline.fit(self.train_x, self.train_y)
+            prediction = pipeline.predict(self.test_x)
+            prediction_eval = evaluate_model(self.test_y, prediction)
+
+            mlflow.log_metrics(prediction_eval)
+            mlflow.sklearn.log_model(pipeline, artifact_path=artifact_path)
+
+        return {"loss": -prediction_eval["f1_score"], "status": STATUS_OK}
+
+    def inference(self, model_name):
+
+        criterion = self.config["criterion"]
+        min_depth, max_depth = self.config["min_depth"], self.config["max_depth"]
+        min_samples_split, max_samples_split = (
+            self.config["min_sample_split"],
+            self.config["max_sample_split"],
+        )
+        min_samples_leaf, max_sample_leaf = (
+            self.config["min_sample_leaf"],
+            self.config["max_sample_leaf"],
         )
 
-    except:
-        pass
-    mlflow.set_tracking_uri(tracking_uri)
-    mlflow.set_experiment(experiment_name)
+        space = {
+            "max_depth": hp.randint("max_depth", min_depth, max_depth),
+            "min_samples_split": hp.randint(
+                "min_samples_split", min_samples_split, max_samples_split
+            ),
+            "min_samples_leaf": hp.randint(
+                "min_samples_leaf", min_samples_leaf, max_sample_leaf
+            ),
+            "criterion": hp.choice("criterion", criterion),
+            "model_name": model_name,
+        }
 
-    train_x = train_x.to_dict(orient="records")
-
-    with mlflow.start_run():
-
-        mlflow.set_tag("Developer", "Godwin")
-        mlflow.set_tag("model", "Logistic Regression")
-        mlflow.log_param("C", c_value)
-
-        lr_pipeline = make_pipeline(
-            DictVectorizer(sparse=False), LogisticRegression(C=c_value)
-        )  # make training pipeline
-
-        lr_pipeline.fit(train_x, train_y)
-        prediction = lr_pipeline.predict(train_x)
-        evaluation_result = evaluate(train_y, prediction)
-
-        mlflow.log_metrics(evaluation_result)
-        mlflow.sklearn.log_model(
-            lr_pipeline,
-            artifact_path="mlflow",
-            registered_model_name="Sklearn-models",
+        best_result = fmin(
+            fn=self.objective,
+            space=space,
+            algo=tpe.suggest,
+            max_evals=50,
+            trials=Trials(),
         )
-        # artifact_uri = mlflow.get_artifact_uri()
-        # print(f"Artifact uri: {artifact_uri}")
 
-    return lr_pipeline, evaluation_result
+        return best_result
 
 
-# Define Model Saving Function
-@task(name="Save Model to directory")
-def save_model_to_dir(model, model_path):
+class XGBoost:
+    def __init__(self, params, data, num_boost_round=1000, early_stopping_rounds=50):
+        self.params = params
+        self.num_boost_round = num_boost_round
+        self.early_stopping_rounds = early_stopping_rounds
+        self.booster = None
+        self.vectorizer = DictVectorizer(sparse=False)
+        self.train_x, self.test_x, self.train_y, self.test_y = data
 
-    if not os.path.exists(os.path.dirname(model_path)):
-        os.mkdir(os.path.dirname(model_path))
+    def fit(self, x, y):
 
-    with open(model_path, "wb") as f_out:
-        pickle.dump(model, f_out)
-    print("Model saved successfully!")
-    return "Model saved successfully!"
+        X_sparse = self.vectorizer.fit_transform(x)
+
+        # Create xgb.DMatrix
+        dtrain = xgb.DMatrix(X_sparse, label=y)
+        self.booster = xgb.train(
+            self.params,
+            dtrain=dtrain,
+            num_boost_round=self.num_boost_round,
+            early_stopping_rounds=self.early_stopping_rounds,
+            evals=[(dtrain, "train")],
+            verbose_eval=50,
+        )
+        mlflow.xgboost.log_model(self.booster, artifact_path=artifact_path)
+
+    def objective(self, params):
+
+        model_name = params["model_name"]
+        del params["model_name"]
+        with mlflow.start_run():
+
+            mlflow.set_tag("developer", developer)
+            mlflow.set_tag("model_name", model_name)
+            mlflow.log_params(params)
+
+            self.fit(self.train_x, self.train_y)
+            prediction = self.predict(self.test_x)
+            prediction = (prediction >= 0.5).astype("int")
+
+            prediction_eval = evaluate_model(self.test_y, prediction)
+            mlflow.log_metrics(prediction_eval)
+        return {"loss": -prediction_eval["f1_score"], "status": STATUS_OK}
+
+    def inference(self, model_name):
+
+        objective = self.params["objective"]
+        metric = self.params["eval_metric"]
+        min_learning_rate = self.params["min_learning_rate"]
+        max_learning_rate = self.params["max_learning_rate"]
+        min_depth, max_depth = self.params["min_depth"], self.params["max_depth"]
+        min_child_weight, max_child_weight = (
+            self.params["min_child_weight"],
+            self.params["max_child_weight"],
+        )
+
+        search_space = {
+            "max_depth": scope.int(hp.quniform("max_depth", min_depth, max_depth, 3)),
+            "learning_rate": hp.loguniform(
+                "learning_rate", min_learning_rate, max_learning_rate
+            ),
+            "min_child_weight": hp.loguniform(
+                "min_child_weight", min_child_weight, max_child_weight
+            ),
+            "objective": objective,
+            "eval_metric": metric,
+            "seed": seed,
+            "model_name": model_name,
+        }
+
+        best_result = fmin(
+            fn=self.objective,
+            space=search_space,
+            algo=tpe.suggest,
+            max_evals=50,
+            trials=Trials(),
+        )
+        return best_result
+
+    def predict(self, X):
+        X_sparse = self.vectorizer.transform(X)
+
+        # Create xgb.DMatrix
+        dmatrix = xgb.DMatrix(X_sparse)
+
+        # Use the trained model for predictions
+        predictions = self.booster.predict(dmatrix)
+        return predictions
 
 
-# Define Model Saving Function
-@task(name="Save Model to s3")
-def save_model_to_s3(model, model_path):
-
-    if not os.path.exists(os.path.dirname(model_path)):
-        os.mkdir(os.path.dirname(model_path))
-
-    with open(model_path, "wb") as f_out:
-        pickle.dump(model, f_out)
-    print("Model saved successfully!")
-    return "Model saved successfully!"
+app = Flask("Model_Training")
 
 
-@flow(name="Training and Model Evaluation")
-def training_pipeline():
+@app.route("/train", methods=["GET"])
+def main():
 
-    # Load the processed dataset and split into train and test sets
-    # X, y = load_data_from_db(PROCESSED_DATASET)
+    data = process_data()
+    logging.info("Process Data")
 
     print(
-        "=================================Starting Model Training=================================================\n\n"
+        "============================================Linear Model=========================================="
     )
+    linear_model(data)
+    logging.info("Linear Regression Model Complete")
 
-    data = load_data_from_relational_db(
-        dbprovider="mysql", tablename=processed_dataset_name
+    print(
+        "============================================Random Forest=========================================="
     )
-    (X_train, X_test, y_train, y_test) = process_data(data, target_column="churn")
+    params = config["hyperparameters"]["tree_models"]
+    tree = Tree(params, data)
+    tree.inference("randomforest")
+    logging.info("Train Random Forest")
+    print("Successfully Trained Random Forest Models")
 
-    model, train_eval_result = train_model(
-        X_train, y_train
-    )  # Train the model and get the evaluation results on the training set
-    test_eval_result, _ = evaluate_model(
-        model, X_test, y_test
-    )  # Evaluate the model on the test set and get the evaluation results and predictions
+    print(
+        "============================================Decision Tree=========================================="
+    )
+    tree = Tree(params, data)
+    tree.inference("decisiontree")
+    logging.info("Train Decision Tree")
+    print("Successfully Trained Decision Tree Models")
 
-    model_evaluation_result = {
-        "Train evaluation result": train_eval_result,
-        "Test evaluation result": test_eval_result,
-    }
+    print(
+        "============================================Xgboost======================================="
+    )
+    params = config["hyperparameters"]["xgboost"]
+    xgboost = XGBoost(params, data)
+    xgboost_result = xgboost.inference("xgboost")
 
-    # Print the training set evaluation results
-    # save_model_to_dir(model, model_path)
+    logging.info("Train Xgboost")
 
-    print("====================Train Set Metrics==================")
-    print(json.dumps(train_eval_result, indent=2))
-    print("======================================================")
-    print()
+    return jsonify({"response": "Model Training Complete"})
 
-    # Print the test set evaluation results
-    print("====================Test Set Metrics==================")
-    print(json.dumps(test_eval_result, indent=2))
-    print("======================================================")
 
-    return model_evaluation_result
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=8001)

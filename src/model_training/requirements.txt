@@ -2,6 +2,8 @@ boto3
 numpy
 pandas
 mlflow
-prefect==2.14.9
-pymongo
+prefect
 scikit-learn
+hyperopt
+python-dotenv
+flask

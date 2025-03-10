@@ -1,17 +1,14 @@
-FROM python:3.9.7-slim
-
-RUN pip install -U pip
-
-WORKDIR /home
-
+FROM python:3.9-slim as builder
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
 
-RUN pip install -r requirements.txt
-
-COPY . /home/
-
-RUN mkdir -p /home/databases && chmod -R 777 /home/databases
-
-RUN chmod +x /home/run.sh
-
-ENTRYPOINT [ "/home/run.sh"]
+FROM python:3.9-slim
+WORKDIR /app
+COPY --from=builder /root/.local /root/.local
+ENV PATH=/root/.local/bin:$PATH
+COPY . .
+CMD ["python", "train.py"]

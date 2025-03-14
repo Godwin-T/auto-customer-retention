@@ -49,7 +49,6 @@ def process():
 
     logging.info("Pulling from database")
     input_data = pull_data_from_db(tablename=raw_table_name)
-    print(input_data)
     logging.info("Process data")
     processed_data = process_dataframe(
         input_data, target_column, drop_cols=drop_columns

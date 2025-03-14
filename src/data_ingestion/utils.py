@@ -1,4 +1,5 @@
 import os
+import yaml
 import time
 import sqlite3
 import argparse
@@ -15,13 +16,16 @@ from sqlalchemy.engine.base import Engine
 load_dotenv()
 
 hostname = os.getenv("HOSTNAME")
-dbname = os.getenv("customer_db")
-dbpath = os.getenv("db_path")
 username = os.getenv("MYSQL_USERNAME")
 password = os.getenv("MYSQL_PASSWORD")
 
+config_path = os.getenv("config_path")
+with open(config_path) as config:
+    config = yaml.safe_load(config)
+customer_data_path = config["database"]["customer"]["database_path"]
 
-def create_mysql_engine() -> Optional[Engine]:
+
+def create_mysql_engine(dbname) -> Optional[Engine]:
     """Create and return a MySQL connection engine using environment variables or command line arguments."""
 
     try:
@@ -32,7 +36,7 @@ def create_mysql_engine() -> Optional[Engine]:
             return None
 
         connection_string = (
-            f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbpath}"
+            f"mysql+mysqlconnector://{username}:{password}@{hostname}/{dbname}"
         )
         engine = create_engine(connection_string)
 
@@ -63,7 +67,6 @@ def get_engine() -> Tuple[Union[Engine, sqlite3.Connection], str]:
     # if sql_engine:
     #     return sql_engine, "mysql"
     # else:
-    customer_data_path = f"{dbpath}/{dbname}"
     # print("Falling back to SQLite database")
     return connect_sqlite(customer_data_path), "sqlite"
 

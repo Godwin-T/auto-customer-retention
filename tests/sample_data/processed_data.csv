@@ -1,8 +1,0 @@
-gender,seniorcitizen,partner,dependents,tenure,phoneservice,multiplelines,internetservice,onlinesecurity,onlinebackup,deviceprotection,techsupport,streamingtv,streamingmovies,contract,paperlessbilling,paymentmethod,monthlycharges,totalcharges,churn
-female,0,yes,no,1,no,no_phone_service,dsl,no,yes,no,no,no,no,month-to-month,yes,electronic_check,29.85,29.85,0
-male,0,no,no,34,yes,no,dsl,yes,no,yes,no,no,no,one_year,no,mailed_check,56.95,1889.5,0
-male,0,no,no,2,yes,no,dsl,yes,yes,no,no,no,no,month-to-month,yes,mailed_check,53.85,108.15,1
-male,0,no,no,45,no,no_phone_service,dsl,yes,no,yes,yes,no,no,one_year,no,bank_transfer_(automatic),42.3,1840.75,0
-female,0,no,no,2,yes,no,fiber_optic,no,no,no,no,no,no,month-to-month,yes,electronic_check,70.7,151.65,1
-female,0,no,no,8,yes,yes,fiber_optic,no,no,yes,no,yes,yes,month-to-month,yes,electronic_check,99.65,820.5,1
-male,0,no,yes,22,yes,yes,fiber_optic,no,yes,no,no,yes,no,month-to-month,yes,credit_card_(automatic),89.1,1949.4,0

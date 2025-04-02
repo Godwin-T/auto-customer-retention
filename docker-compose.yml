@@ -1,10 +1,17 @@
-
 version: "3.2"
-services:
 
+networks:
+  customer_retention_network:
+    driver: bridge
+
+
+volumes:
+  grafana-storage:
+
+services:
   data_ingestion:
     build:
-      context: src/data_ingestion
+      context: src/data_ingest
       dockerfile: Dockerfile
     environment:
       - db_path=${db_path}
@@ -18,10 +25,12 @@ services:
       - /home/fresh/Documents/Workflow/Customer-retention/databases:/app/databases
       - /home/fresh/Documents/Workflow/Customer-retention/configs:/app/configs
       - /home/fresh/Documents/Workflow/Customer-retention/data:/app/data
+    networks:
+      - customer_retention_network
 
-  model_training:
+  train:
     build:
-      context: src/model_training
+      context: src/training
       dockerfile: Dockerfile
     environment:
       - config_path=${config_path}
@@ -32,12 +41,13 @@ services:
     volumes:
       - /home/fresh/Documents/Workflow/Customer-retention/databases:/app/databases
       - /home/fresh/Documents/Workflow/Customer-retention/configs:/app/configs
-      - /home/fresh/Documents/Workflow/Customer-retention/data:/app/data
       - /home/fresh/Documents/Workflow/Customer-retention/mlruns:/app/mlruns
+    networks:
+      - customer_retention_network
 
-  model_deployment:
+  deploy:
     build:
-      context: src/model_deployment
+      context: src/deployment
       dockerfile: Dockerfile
     environment:
       - config_path=${config_path}
@@ -53,3 +63,85 @@ services:
       - /home/fresh/Documents/Workflow/Customer-retention/configs:/app/configs
       - /home/fresh/Documents/Workflow/Customer-retention/data:/app/data
       - /home/fresh/Documents/Workflow/Customer-retention/mlruns:/app/mlruns
+    depends_on:
+      - train
+    networks:
+      - customer_retention_network
+
+  monitor:
+    build:
+      context: src/monitoring
+      dockerfile: Dockerfile
+    environment:
+      - config_path=${monitor_config_path}
+    ports:
+      - "8003:8003"
+    expose:
+      - 8003
+    volumes:
+      - /home/fresh/Documents/Workflow/Customer-retention/databases:/app/databases
+      - /home/fresh/Documents/Workflow/Customer-retention/configs:/app/configs
+    depends_on:
+      - deploy
+    networks:
+      - customer_retention_network
+
+  prefect_server:
+    build:
+      context: src/prefect
+      dockerfile: Dockerfile.server
+    environment:
+      - config_path=${monitor_config_path}
+    ports:
+      - "4200:4200"
+    expose:
+      - 4200
+    command: prefect server start --host 0.0.0.0 --port 4200
+    depends_on:
+      - monitor
+    networks:
+      - customer_retention_network
+
+  prefect_app:
+    build:
+      context: src/prefect
+      dockerfile: Dockerfile.app
+    environment:
+      - config_path=${monitor_config_path}
+      - PREFECT_API_URL=http://prefect_server:4200/api
+    volumes:
+      - /home/fresh/Documents/Workflow/Customer-retention/configs:/app/configs
+    depends_on:
+      - prefect_server
+    networks:
+      - customer_retention_network
+    restart: on-failure
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: always
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    expose:
+      - 9090
+    networks:
+      - customer_retention_network
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - customer_retention_network

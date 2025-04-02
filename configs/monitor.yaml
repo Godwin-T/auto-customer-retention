@@ -1,0 +1,11 @@
+database: "./databases/customer.db"
+models:
+- name: "Production"
+  thresholds:
+    accuracy: 0.75
+- name: "Stagging"
+  thresholds:
+    accuracy: 0.80
+- name: "Archived"
+  thresholds:
+    accuracy: 0.85

@@ -1,0 +1,7 @@
+flask==3.0.3
+pydantic==1.10.7
+prometheus-client==0.16.0
+pandas==2.0.0
+numpy==1.24.2
+evidently==0.2.8
+psutil==5.9.5

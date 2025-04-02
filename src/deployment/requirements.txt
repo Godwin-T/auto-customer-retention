@@ -1,0 +1,8 @@
+mlflow
+flask
+pandas
+numpy
+prefect
+boto3
+python-dotenv
+pysqlite3

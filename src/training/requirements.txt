@@ -1,0 +1,9 @@
+boto3
+numpy
+pandas
+mlflow
+prefect
+scikit-learn
+hyperopt
+python-dotenv
+flask

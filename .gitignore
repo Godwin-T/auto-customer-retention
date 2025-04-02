@@ -9,3 +9,4 @@
 **.pytest_cache
 pytest.ini
 .pre-commit-config.yaml
+*.db

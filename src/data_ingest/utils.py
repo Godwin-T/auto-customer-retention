@@ -11,11 +11,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-config_path = os.getenv("config_path")
-with open(config_path) as config:
-    config = yaml.safe_load(config)
-customer_data_path = config["database"]["customer"]["database_path"]
-
 
 def connect_sqlite(dbpath: str) -> sqlite3.Connection:
     """Create and return a SQLite connection."""
@@ -75,31 +70,35 @@ def process_dataframe(
 ) -> pd.DataFrame:
     """Clean and preprocess the dataframe for analysis."""
     try:
-        # Create a copy to avoid modifying the original
         df = dataframe.copy()
 
-        # Clean column names
+        # Standardize column names
         df.columns = df.columns.str.replace(" ", "_").str.lower()
+        target_col = target_col.lower()
 
-        # Clean categorical columns
+        # Normalize categorical columns
         categorical_cols = df.select_dtypes(include=["object"]).columns
         for col in categorical_cols:
             df[col] = df[col].str.replace(" ", "_").str.lower()
 
         # Drop specified columns
         if drop_cols:
+            drop_cols = [col.lower() for col in drop_cols]
             df = df.drop(drop_cols, axis=1)
 
-        # Handle special case for totalcharges
+        # Convert totalcharges to float
         if "totalcharges" in df.columns:
             df = df[df["totalcharges"] != "_"]
-            df["totalcharges"] = df["totalcharges"].astype("float32")
+            df["totalcharges"] = df["totalcharges"].astype("float64")
 
         # Convert target column to binary
         if target_col in df.columns:
-            df[target_col] = (df[target_col] == "yes").astype(int)
+            df["churn"] = (df[target_col] == "yes").astype(int)
+            if target_col != "churn":
+                df = df.drop(columns=[target_col])
 
         return df
+
     except Exception as e:
         print(f"Error processing dataframe: {str(e)}")
         raise

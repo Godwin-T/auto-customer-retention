@@ -26,23 +26,35 @@ from utils import evaluate_model, pull_data_from_db, connect_sqlite
 
 load_dotenv()
 
-config_path = os.getenv("config_path")
-with open(config_path) as config:
-    config = yaml.safe_load(config)
 
-customer_data_path = config["database"]["customer"]["database_path"]
-dbengine = connect_sqlite(customer_data_path)
+def load_config():
 
-seed = config["base"]["random_state"]
-developer = config["base"]["developer"]
-artifact_path = f"{config['base']['artifact_path']}"
+    config_path = os.getenv("config_path")
+    with open(config_path) as config:
+        config = yaml.safe_load(config)
+    return config
 
-mlflow.set_tracking_uri(config["database"]["tracking"]["tracking_url"])
-mlflow.set_experiment(config["database"]["tracking"]["experiment_name"])
+
+def get_engine():
+    config = load_config()
+    customer_data_path = config["database"]["db_path"]
+    dbengine = connect_sqlite(customer_data_path)
+    return dbengine
+
+
+def initialize_mlflow():
+    """Initialize MLflow with the given configuration"""
+    config = load_config()
+    tracking_uri = config["database"]["tracking_uri"]
+    mlflow.set_tracking_uri(tracking_uri)
+    mlflow.set_experiment(config["base"]["experiment_name"])
 
 
 # Load and Process Data
 def process_data(tablename):
+
+    config = load_config()
+    dbengine = get_engine()
 
     data = pull_data_from_db(dbengine, tablename)
     dframe = data.copy()
@@ -50,18 +62,21 @@ def process_data(tablename):
     customerid = dframe.pop("customerid")
 
     y = dframe["churn"]
-    y = y.map({"yes": 1, "no": 0}).astype(int)
 
     X = dframe.drop(["churn"], axis=1)
     X = X.to_dict(orient="records")
 
     output_dframe = train_test_split(
-        X, y, test_size=config["data"]["test_size"], random_state=seed
+        X, y, test_size=config["parameters"]["test_size"], random_state=11
     )
     return customerid, output_dframe
 
 
 def linear_model(data):
+
+    config = load_config()
+    developer = config["base"]["developer"]
+    artifact_path = f"{config['base']['artifact_path']}"
 
     (train_x, test_x, train_y, test_y) = data
     lr_params = config["hyperparameters"]["linear_model"]
@@ -86,8 +101,11 @@ def linear_model(data):
 
 
 class Tree:
-    def __init__(self, configurations, data):
-        self.config = configurations
+    def __init__(self, data):
+        self.fullconfig = load_config()
+        self.config = self.fullconfig["hyperparameters"]["tree_models"]
+        self.developer = self.fullconfig["base"]["developer"]
+        self.artifact_path = f"{self.fullconfig['base']['artifact_path']}"
         self.train_x, self.test_x, self.train_y, self.test_y = data
 
     def objective(self, params):
@@ -95,7 +113,7 @@ class Tree:
         model_name = params["model_name"]
         del params["model_name"]
         with mlflow.start_run():
-            mlflow.set_tag("developer", developer)
+            mlflow.set_tag("developer", self.developer)
             mlflow.set_tag("model_name", model_name)
             mlflow.log_params(params)
 
@@ -117,12 +135,12 @@ class Tree:
             prediction_eval = evaluate_model(self.test_y, prediction)
 
             mlflow.log_metrics(prediction_eval)
-            mlflow.sklearn.log_model(pipeline, artifact_path=artifact_path)
+            mlflow.sklearn.log_model(pipeline, artifact_path=self.artifact_path)
 
         return {"loss": -prediction_eval["f1_score"], "status": STATUS_OK}
 
     # @log_step("Train Trea Model")
-    def inference(self, model_name):
+    def train(self, model_name):
 
         criterion = self.config["criterion"]
         min_depth, max_depth = self.config["min_depth"], self.config["max_depth"]
@@ -159,12 +177,17 @@ class Tree:
 
 
 class XGBoost:
-    def __init__(self, params, data, num_boost_round=1000, early_stopping_rounds=50):
-        self.params = params
+    def __init__(self, data, num_boost_round=1000, early_stopping_rounds=50):
+
         self.num_boost_round = num_boost_round
         self.early_stopping_rounds = early_stopping_rounds
         self.booster = None
         self.vectorizer = DictVectorizer(sparse=False)
+
+        self.fullconfig = load_config()
+        self.config = self.fullconfig["hyperparameters"]["xgboost"]
+        self.developer = self.fullconfig["base"]["developer"]
+        self.artifact_path = f"{self.fullconfig['base']['artifact_path']}"
         self.train_x, self.test_x, self.train_y, self.test_y = data
 
     def fit(self, x, y):
@@ -174,24 +197,24 @@ class XGBoost:
         # Create xgb.DMatrix
         dtrain = xgb.DMatrix(X_sparse, label=y)
         self.booster = xgb.train(
-            self.params,
+            self.config,
             dtrain=dtrain,
             num_boost_round=self.num_boost_round,
             early_stopping_rounds=self.early_stopping_rounds,
             evals=[(dtrain, "train")],
             verbose_eval=50,
         )
-        mlflow.xgboost.log_model(self.booster, artifact_path=artifact_path)
+        mlflow.xgboost.log_model(self.booster, artifact_path=self.artifact_path)
 
-    def objective(self, params):
+    def objective(self, config):
 
-        model_name = params["model_name"]
-        del params["model_name"]
+        model_name = config["model_name"]
+        del config["model_name"]
         with mlflow.start_run():
 
-            mlflow.set_tag("developer", developer)
+            mlflow.set_tag("developer", self.developer)
             mlflow.set_tag("model_name", model_name)
-            mlflow.log_params(params)
+            mlflow.log_params(config)
 
             self.fit(self.train_x, self.train_y)
             prediction = self.predict(self.test_x)
@@ -204,14 +227,14 @@ class XGBoost:
     # @log_step("Train Xgboost")
     def inference(self, model_name):
 
-        objective = self.params["objective"]
-        metric = self.params["eval_metric"]
-        min_learning_rate = self.params["min_learning_rate"]
-        max_learning_rate = self.params["max_learning_rate"]
-        min_depth, max_depth = self.params["min_depth"], self.params["max_depth"]
+        objective = self.config["objective"]
+        metric = self.config["eval_metric"]
+        min_learning_rate = self.config["min_learning_rate"]
+        max_learning_rate = self.config["max_learning_rate"]
+        min_depth, max_depth = self.config["min_depth"], self.config["max_depth"]
         min_child_weight, max_child_weight = (
-            self.params["min_child_weight"],
-            self.params["max_child_weight"],
+            self.config["min_child_weight"],
+            self.config["max_child_weight"],
         )
 
         search_space = {
@@ -224,7 +247,7 @@ class XGBoost:
             ),
             "objective": objective,
             "eval_metric": metric,
-            "seed": seed,
+            "seed": 11,
             "model_name": model_name,
         }
 
@@ -254,19 +277,19 @@ app = Flask("Model_Training")
 @app.route("/train", methods=["GET"])
 def main():
 
+    initialize_mlflow()
+
     _, data = process_data("processdata")
     linear_model(data)
 
-    # params = config["hyperparameters"]["tree_models"]
-    # tree = Tree(params, data)
-    # tree.inference("randomforest")
+    # tree = Tree(data)
+    # tree.train("randomforest")
     # logging.info("Train Random Forest")
-    # tree = Tree(params, data)
-    # tree.inference("decisiontree")
+    # tree = Tree(data)
+    # tree.train("decisiontree")
     # logging.info("Train Decision Tree")
-    # params = config["hyperparameters"]["xgboost"]
-    # # xgboost = XGBoost(params, data)
-    # xgboost_result = xgboost.inference("xgboost")
+    # xgboost = XGBoost( data)
+    # xgboost_result = xgboost.train("xgboost")
 
     # logging.info("Train Xgboost")
 

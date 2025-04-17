@@ -69,20 +69,15 @@ The microservices architecture ensures that individual components can be modifie
 
 The project uses Prefect for orchestrating the ML pipeline workflows. Below are visualizations of the flows:
 
-### Flow Diagram
-![Prefect Flow Diagram](./assets/flow.png)
+### Scheduled Runs
+![Prefect Scheduled Runs](./assets/runs.png)
 
 ### Flow Runs
 ![Prefect Flow Runs](./assets/runs.png)
 
-### Scheduled Runs
-![Prefect Scheduled Runs](./assets/runs.png)
+### Flow Diagram
+![Prefect Flow Diagram](./assets/flow.png)
 
-## Demo Video
-
-Watch a short demonstration of the system in action:
-
-[![Customer Retention System Demo](./assets/dashboard.png)](./assets/demo.mp4)
 
 ## Technologies Used
 

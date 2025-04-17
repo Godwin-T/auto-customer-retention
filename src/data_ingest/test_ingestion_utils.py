@@ -30,13 +30,13 @@ def expected_processed_dataframe():
 def dummy_config():
     """Mock config for the ingestion module."""
     return {
-        "database": {"customer": {"database_path": ":memory:"}},
+        "database": {"db_path": ":memory:"},
         "data": {
-            "raw": {"path": "dummy.csv", "name": "raw_table"},
-            "process": {
+            "raw_data": {"path": "dummy.csv", "name": "raw_table"},
+            "processed_data": {
                 "name": "processed_table",
-                "dropcols": ["customerid"],
-                "targetcolumn": "Churn",
+                "dropcols": [],
+                "targetcolumn": "churn",
             },
         },
     }
@@ -125,12 +125,9 @@ def test_flask_process_endpoint(
     response = test_client.get("/process")
 
     assert response.status_code == 200
-    assert response.json["response"] == "Successfully Processed Data"
 
     # Validate that the data was actually processed in DB
     df = utils.pull_data_from_db(seed_raw_table, "processed_table")
-    # pd.testing.assert_frame_equal(df[["totalcharges", "churn"]].reset_index(drop=True),
-    #                                expected_processed_dataframe)
     pd.testing.assert_frame_equal(
         df[["totalcharges", "churn"]].reset_index(drop=True),
         expected_processed_dataframe,

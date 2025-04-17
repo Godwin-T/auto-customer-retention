@@ -1,0 +1,8 @@
+database:
+  db_path: ./databases/customer.db
+  tracking_uri: 'sqlite:///databases/mlflow.db'
+
+logs:
+  prediction_logs: "prediction_logs"
+  model_metrics: metrics_logs
+  systemmetrics: system_metrics_logs

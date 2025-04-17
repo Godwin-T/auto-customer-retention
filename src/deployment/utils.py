@@ -29,7 +29,8 @@ def pull_data_from_db(db_engine, tablename: str):
 def input_data_processing(data, column_to_drop="churn"):
 
     data.drop_duplicates(inplace=True)
-    data.drop(["date"], axis=1, inplace=True)
+    if "date" in data.columns:
+        data.drop(["date"], axis=1, inplace=True)
 
     data.columns = data.columns.str.lower()
     data.columns = data.columns.str.replace(" ", "_").str.lower()

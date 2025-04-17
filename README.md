@@ -73,7 +73,7 @@ The project uses Prefect for orchestrating the ML pipeline workflows. Below are 
 ![Prefect Scheduled Runs](./assets/runs.png)
 
 ### Flow Runs
-![Prefect Flow Runs](./assets/runs.png)
+![Prefect Flow Runs](./assets/scheduled.png)
 
 ### Flow Diagram
 ![Prefect Flow Diagram](./assets/flow.png)

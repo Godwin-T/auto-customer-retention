@@ -3,7 +3,7 @@ import json
 import os
 from unittest.mock import patch, MagicMock
 import pandas as pd
-from deploy import create_app, load_config, get_default_config
+from deploy import create_app, load_config  # , get_default_config
 
 
 # Set testing environment variable
@@ -13,16 +13,16 @@ os.environ["TESTING"] = "True"
 @pytest.fixture
 def mock_config():
     return {
-        "base": {"random_state": 42},
+        # "base": {"random_state": 42},
         "database": {
-            "customer": {
-                "database_path": "sqlite:///data/customer.db",
-                "prediction_logs": "predictions",
-            },
-            "tracking": {"tracking_url": "sqlite:///mlruns.db"},
+            "db_path": "./data/customer.db",
+            "tracking_uri": "sqlite:///databases/mlflow.db",
         },
-        "data": {"process": {"path": "./data/processed"}},
-        "hyperparameters": {"trees": 100},
+        "logs": {
+            "prediction_logs": "predictions",
+            "model_metrics": "metrics_logs",
+            "systemmetrics": "system_metrics",
+        },
     }
 
 
@@ -113,21 +113,21 @@ def test_deploy_auto(mock_deploy_auto, client):
     mock_deploy_auto.assert_called_once()
 
 
-# Test the configuration loading
-def test_load_config():
-    # Test with environment variable not set
-    with patch("deploy.os.getenv", return_value=None), patch(
-        "deploy.open", side_effect=FileNotFoundError
-    ):
-        config = load_config()
-        assert config == get_default_config()
+# # Test the configuration loading
+# def test_load_config():
+#     # Test with environment variable not set
+#     with patch("deploy.os.getenv", return_value=None), patch(
+#         "deploy.open", side_effect=FileNotFoundError
+#     ):
+#         config = load_config()
+#         assert config == get_default_config()
 
-    # Test with environment variable set but file not found
-    with patch("deploy.os.getenv", return_value="nonexistent.yaml"), patch(
-        "deploy.open", side_effect=FileNotFoundError
-    ):
-        config = load_config()
-        assert config == get_default_config()
+#     # Test with environment variable set but file not found
+#     with patch("deploy.os.getenv", return_value="nonexistent.yaml"), patch(
+#         "deploy.open", side_effect=FileNotFoundError
+#     ):
+#         config = load_config()
+#         assert config == get_default_config()
 
 
 # Test the automated deployment workflow

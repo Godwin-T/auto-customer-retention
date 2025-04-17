@@ -14,9 +14,9 @@ services:
       context: src/data_ingest
       dockerfile: Dockerfile
     environment:
-      - db_path=${db_path}
-      - customer_db=${customer_db}
-      - config_path=${config_path}
+      # - db_path=${db_path}
+      # - customer_db=${customer_db}
+      - config_path=${data_processing_config_path}
     ports:
       - "8000:8000"
     expose:
@@ -33,7 +33,7 @@ services:
       context: src/training
       dockerfile: Dockerfile
     environment:
-      - config_path=${config_path}
+      - config_path=${model_training_config_path}
     ports:
       - "8001:8001"
     expose:
@@ -50,10 +50,8 @@ services:
       context: src/deployment
       dockerfile: Dockerfile
     environment:
-      - config_path=${config_path}
-      - db_path=${db_path}
-      - customer_db=${customer_db}
-      - MLFLOW_TRACKING_URI=sqlite:///databases/mlflow.db
+      - config_path=${deployment_config_path}
+      - MLFLOW_TRACKING_URI=${mlflow_tracking_uri}
     ports:
       - "8002:8002"
     expose:

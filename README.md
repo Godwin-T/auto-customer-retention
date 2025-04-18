@@ -157,3 +157,15 @@ The Streamlit interface provides an interactive way to:
    ```
    pytest
    ```
+## RAN INTO THESE ERRORS
+Your services mounted an empty databases folder, so the SQLite file never had any tables—calls returned NoneType and threw 500 errors.
+
+- Ensure db_path setting points to /app/databases/customer_retention.db in your config.
+
+- Create migrations: write SQL or use Alembic to define processdata and prediction_logs schemas.
+
+- Bootstrap database: run those migrations against the SQLite file before app startup.
+
+- Verify volumes: confirm ./databases is correctly mounted into each container.
+
+**Good suggestion?** use create_engine("sqlite:///…") or sqlite3 commands to load the schema.

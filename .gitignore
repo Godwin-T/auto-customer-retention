@@ -10,3 +10,4 @@
 pytest.ini
 .pre-commit-config.yaml
 *.db
+**/.configs

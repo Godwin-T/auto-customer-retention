@@ -22,9 +22,9 @@ services:
     expose:
       - 8000
     volumes:
-      - /home/fresh/Documents/Workflow/Customer-retention/databases:/app/databases
-      - /home/fresh/Documents/Workflow/Customer-retention/configs:/app/configs
-      - /home/fresh/Documents/Workflow/Customer-retention/data:/app/data
+      - ./databases:/app/databases
+      - ./configs:/app/configs
+      - ./data:/app/data
     networks:
       - customer_retention_network
 

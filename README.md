@@ -100,14 +100,22 @@ The project uses Prefect for orchestrating the ML pipeline workflows. Below are 
    cd customer-retention-system
    ```
 
-2. Run the system using Docker Compose
+2. Create `.env` file and add the following paths
+   ```
+   data_processing_config_path=/app/configs/data_processing.yaml
+   model_training_config_path=/app/configs/model_training.yaml
+   deployment_config_path=/app/configs/deployment.yaml
+   monitor_config_path=/app/configs/monitor.yaml
+   mlflow_tracking_uri=sqlite:///databases/mlflow.db
+   ```
+3. Run the system using Docker Compose
    ```
    docker-compose up
    ```
 
-3. Access the Streamlit UI at http://localhost:8501
+4. Access the Streamlit UI at http://localhost:8501
 
-4. API endpoints are available at http://localhost:5000
+5. API endpoints are available at http://localhost:5000
 
 ## Usage
 
@@ -131,6 +139,21 @@ The Streamlit interface provides an interactive way to:
 3. Update configuration as needed
 
 ### Running Tests
-```
-pytest tests/
-```
+1. Create python environment and install dependences.
+   ```
+   # create a virtual environment
+   python3 -m venv myenv
+
+   # for macos/linux
+   source myenv/bin/activate
+
+   # for windows
+   myenv\Scripts\activate
+
+   # install dependencies
+   pip install -r requirements.txt
+   ```
+2. Run tests.
+   ```
+   pytest
+   ```

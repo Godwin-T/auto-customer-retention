@@ -44,7 +44,7 @@ with open(config_path) as config_file:
 def connect_sqlite(dbpath: str) -> sqlite3.Connection:
     """Create and return a SQLite connection."""
     try:
-        return sqlite3.connect(dbpath, check_same_thread=False)
+        return sqlite3.connect(dbpath, check_same_thread=False, timeout=30)
     except Exception as e:
         print(f"Error connecting to SQLite: {str(e)}")
         raise
@@ -98,7 +98,7 @@ def get_current_data(model_name: str) -> pd.DataFrame:
     feature_logs["predicted"] = prediction_logs["predicted"]
 
     # Use last 1000 records as current data
-    current_data = feature_logs.iloc[-1000:]
+    current_data = feature_logs.iloc[:1000]  # -1000:
 
     return current_data
 
@@ -113,10 +113,10 @@ def analyze_drift(
     numerical_cols = reference_data.select_dtypes(exclude=["object"]).columns.to_list()
 
     # Remove target and prediction columns from features
-    if "actual" in numerical_cols:
-        numerical_cols.remove("actual")
-    if "predicted" in numerical_cols:
-        numerical_cols.remove("predicted")
+    # if "actual" in numerical_cols:
+    #     numerical_cols.remove("actual")
+    # if "predicted" in numerical_cols:
+    #     numerical_cols.remove("predicted")
 
     # Define column mapping
     column_mapping = ColumnMapping(

@@ -1,5 +1,3 @@
-import os
-import yaml
 import sqlite3
 import datetime
 import pandas as pd

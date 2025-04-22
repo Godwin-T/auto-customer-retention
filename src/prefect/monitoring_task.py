@@ -26,6 +26,21 @@ def check_data_drift_task(model_name):
             drift_data = response.json()
             logger.info(f"Data drift check complete: {drift_data}")
             return drift_data
+
+        elif response.status_code == 500:
+            error_text = response.text.lower()
+
+            if "'nonetype' object has no attribute 'columns'" in error_text:
+                logger.warning(
+                    "No predictions made yet — performance data not available."
+                )
+                return {
+                    "warning": "No predictions yet. Performance metrics cannot be computed."
+                }
+
+            logger.error(f"Server error checking model performance: {response.text}")
+            return {"error": response.text}
+
         else:
             logger.error(f"Error checking data drift: {response.text}")
             return {"error": response.text}
@@ -61,6 +76,21 @@ def check_model_performance_task(model_name):
             performance_data = response.json()
             logger.info(f"Performance check complete: {performance_data}")
             return {"performance": performance_data}
+
+        elif response.status_code == 500:
+            error_text = response.text.lower()
+
+            if "'nonetype' object has no attribute 'columns'" in error_text:
+                logger.warning(
+                    "No predictions made yet — performance data not available."
+                )
+                return {
+                    "warning": "No predictions yet. Performance metrics cannot be computed."
+                }
+
+            logger.error(f"Server error checking model performance: {response.text}")
+            return {"error": response.text}
+
         else:
             logger.error(f"Error checking model performance: {response.text}")
             return {"error": response.text}

@@ -102,12 +102,13 @@ The project uses Prefect for orchestrating the ML pipeline workflows. Below are 
 
 2. Run the system using Docker Compose
    ```
+   chmod +x prepare_db.sh
+   ./prepare_db.sh
    docker-compose up
    ```
 
 3. Access the Streamlit UI at http://localhost:8501
 
-4. API endpoints are available at http://localhost:5000
 
 ## Usage
 
@@ -129,8 +130,3 @@ The Streamlit interface provides an interactive way to:
 1. Create a new model class in `src/training/train/`
 2. Register the model in the model registry
 3. Update configuration as needed
-
-### Running Tests
-```
-pytest tests/
-```

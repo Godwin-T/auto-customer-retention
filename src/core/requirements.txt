@@ -1,0 +1,19 @@
+# Consolidated requirements from all three applications
+# Data Ingestion
+pyyaml
+flask
+pysqlite3
+pandas
+pymongo
+python-dotenv
+sqlalchemy
+
+# Model Training
+boto3
+numpy
+scikit-learn
+hyperopt
+
+# Model Deployment
+mlflow
+prefect

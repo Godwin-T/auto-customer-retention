@@ -1,5 +1,3 @@
-version: "3.2"
-
 networks:
   customer_retention_network:
     driver: bridge
@@ -42,8 +40,6 @@ services:
     command: prefect server start
     ports:
       - "4200:4200"
-    volumes:
-      - prefect-data:/root/.prefect
     environment:
       - PREFECT_UI_URL=http://localhost:4200
       - PREFECT_API_URL=http://localhost:4200/api

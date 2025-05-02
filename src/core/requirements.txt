@@ -17,3 +17,4 @@ hyperopt
 # Model Deployment
 mlflow
 prefect
+xgboost==2.1.3

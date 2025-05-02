@@ -35,4 +35,4 @@ COPY . .
 EXPOSE 5000
 
 # Run the consolidated Flask application
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]

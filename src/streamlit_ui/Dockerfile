@@ -16,4 +16,4 @@ COPY . .
 EXPOSE 8501
 
 # Command to run Streamlit
-CMD ["streamlit", "run", "automl_dashboard.py"]
+CMD ["streamlit", "run", "app.py"]

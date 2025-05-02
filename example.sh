@@ -1,6 +1,2 @@
-monitor_config_path=
 config_path=
-data_processing_config_path=
-model_training_config_path=
-deployment_config_path=
 mlflow_tracking_uri=

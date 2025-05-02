@@ -1,0 +1,70 @@
+database:
+  db_path: ../../databases/customer.db
+  tracking_uri: 'sqlite:///../../databases/mlflow.db'
+
+data:
+  raw_data:
+    name: "rawdata"
+    path: "../../data/raw_data/Churn.csv"
+  processed_data:
+    name: "processdata"
+    path: '../../data/churn-data/processed_data/churn.csv'
+    dropcols: []
+    targetcolumn: "churn"
+  streamlit:
+    unprocessed_data: "streamlit_unprocessed_data"
+    processed_data: "streamlit_processed_data"
+
+model_registry:
+  name: "Churn_models"
+
+logs:
+  prediction_logs: "prediction_logs"
+  model_metrics: metrics_logs
+  systemmetrics: system_metrics_logs
+
+
+
+training_config:
+  base:
+    artifact_path: "model"
+    developer: "Godwin"
+    experiment_name: 'CustomerChurn'
+    model: ["linearmodel", "decisiontree","randomforest", "xgboost"]
+
+  parameters:
+    test_size: 0.3
+
+  hyperparameters:
+    tree_models:
+      min_depth: 1
+      max_depth: 15
+      min_sample_split: 2
+      max_sample_split: 15
+      min_sample_leaf: 1
+      max_sample_leaf: 15
+      criterion: ["gini", "entropy"]
+    linear_model:
+      min_c: 1
+      max_c: 15
+      interval: 2
+    xgboost:
+      min_depth: 1
+      max_depth: 15
+      min_learning_rate: -3
+      max_learning_rate: 0
+      min_child_weight: 1
+      max_child_weight: 3
+      objective: 'binary:logistic'
+      eval_metric: logloss
+
+models:
+- name: "Production"
+  thresholds:
+    accuracy: 0.75
+- name: "Stagging"
+  thresholds:
+    accuracy: 0.80
+- name: "Archived"
+  thresholds:
+    accuracy: 0.85

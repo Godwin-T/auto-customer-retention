@@ -1,6 +1,6 @@
 import logging
 from flask import Blueprint, jsonify
-from training.train import streamlit_train_model
+from training.train import train_model
 from deployment.deploy import predict, batch_predict, deploy_auto
 from ingestion.ingest import (
     process_existing_data,
@@ -58,10 +58,10 @@ def get_specific_data():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-@training_bp.route("/train", methods=["POST"])
+@training_bp.route("/train", methods=["POST", "GET"])
 def model_training():
     try:
-        result = streamlit_train_model()
+        result = train_model()
         return result
     except Exception as e:
         logger.error(f"Training error: {str(e)}")
@@ -80,20 +80,20 @@ def prediction():
 
 @deployment_bp.route("/batch_predict", methods=["POST"])
 def batch_prediction():
-    # try:
-    result = batch_predict()
-    return result
+    try:
+        result = batch_predict()
+        return result
 
-    # except Exception as e:
-    #     logger.error(f"Error in batch prediction: {str(e)}")
-    #     return jsonify({"status": "error", "message": str(e)}), 500
+    except Exception as e:
+        logger.error(f"Error in batch prediction: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 @deployment_bp.route("/deploy-auto", methods=["GET"])
 def automated_deployment():
-    # try:
-    result = deploy_auto()
-    return result
-    # except Exception as e:
-    #     logger.error(f"Error in automated deployment: {str(e)}")
-    #     return jsonify({"status": "error", "message": str(e)}), 500
+    try:
+        result = deploy_auto()
+        return result
+    except Exception as e:
+        logger.error(f"Error in automated deployment: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500

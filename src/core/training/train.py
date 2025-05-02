@@ -10,26 +10,6 @@ from utils import pull_data_from_db
 from training.models import linear_model, Tree, XGBoost
 
 
-def train_model():
-    """Train model endpoint"""
-
-    params = request.get_json() or {}
-    initialize_mlflow()
-
-    _, data = process_data("processdata")
-    linear_model(data)
-
-    # Uncomment these if you want to train tree models and XGBoost
-    # tree = Tree(data)
-    # tree.train("randomforest")
-    # tree = Tree(data)
-    # tree.train("decisiontree")
-    # xgboost = XGBoost(data)
-    # xgboost.train("xgboost")
-
-    return jsonify({"status": "success", "response": "Model Training Complete"})
-
-
 def process_data(tablename):
     """Process data for model training"""
     config = load_config()
@@ -46,32 +26,97 @@ def process_data(tablename):
     X = X.to_dict(orient="records")
 
     output_dframe = train_test_split(
-        X, y, test_size=config["parameters"]["test_size"], random_state=11
+        X,
+        y,
+        test_size=config["training_config"]["parameters"]["test_size"],
+        random_state=11,
     )
     return customerid, output_dframe
 
 
-def streamlit_train_model():
+# def train_model():
+#     """Train model endpoint"""
+#     initialize_mlflow()
+
+#     params = request.get_json() or {}
+#     job_id = params.get("job_id") if params else None
+
+#     if job_id:
+#         models = params.get("models", ["linear"])
+#         problem_type = params.get("problem_type", "classification")
+
+#         _, data = process_streamlit_data(job_id=job_id)
+
+#         if "linear" in models:
+#             linear_model(data)
+
+#         if "random_forest" in models:
+#             tree = Tree(data)
+#             tree.train("randomforest")
+
+#         # if "xgboost" in models:
+#         #     xgb = XGBoost(data)
+#         #     xgb.train("xgboost")
+
+#     else:
+#         _, data = process_data("processdata")
+#         linear_model(data)
+
+#         # Uncomment these if you want to train tree models and XGBoost
+#         # tree = Tree(data)
+#         # tree.train("randomforest")
+#         # tree = Tree(data)
+#         # tree.train("decisiontree")
+#         # xgboost = XGBoost(data)
+#         # xgboost.train("xgboost")
+
+#     return jsonify({"status": "success", "response": "Model Training Complete"})
+
+
+def train_model():
     """Train model endpoint"""
     initialize_mlflow()
 
-    params = request.get_json() or {}
-    job_id = params.get("job_id") if params else None
-    models = params.get("models", ["linear"])
-    problem_type = params.get("problem_type", "classification")
+    if request.method == "POST":
+        params = request.get_json() or {}
+    elif request.method == "GET":
+        params = request.args.to_dict()
+    else:
+        params = {}
 
-    _, data = process_streamlit_data(job_id=job_id)
+    job_id = params.get("job_id")
 
-    if "linear" in models:
+    if job_id:
+        models = params.get("models", ["linear"])
+        if isinstance(models, str):
+            models = models.split(",")  # in case it's a comma-separated string in GET
+
+        problem_type = params.get("problem_type", "classification")
+
+        _, data = process_streamlit_data(job_id=job_id)
+
+        if "linear" in models:
+            linear_model(data)
+
+        if "random_forest" in models:
+            tree = Tree(data)
+            tree.train("randomforest")
+
+        # if "xgboost" in models:
+        #     xgb = XGBoost(data)
+        #     xgb.train("xgboost")
+
+    else:
+        _, data = process_data("processdata")
         linear_model(data)
 
-    if "random_forest" in models:
-        tree = Tree(data)
-        tree.train("randomforest")
-
-    # if "xgboost" in models:
-    #     xgb = XGBoost(data)
-    #     xgb.train("xgboost")
+        # Uncomment these if you want to train tree models and XGBoost
+        # tree = Tree(data)
+        # tree.train("randomforest")
+        # tree = Tree(data)
+        # tree.train("decisiontree")
+        # xgboost = XGBoost(data)
+        # xgboost.train("xgboost")
 
     return jsonify({"status": "success", "response": "Model Training Complete"})
 

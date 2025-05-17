@@ -72,7 +72,7 @@ def show_data_processing():
                             st.session_state.processed_preview = pd.read_json(
                                 st.session_state.processed_preview
                             )
-                        except:
+                        except Exception:
                             pass
 
                     st.success("Data processed successfully!")

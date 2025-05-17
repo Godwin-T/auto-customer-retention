@@ -1,7 +1,4 @@
 import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from utils.api import make_api_call
 from config import ENDPOINTS
 

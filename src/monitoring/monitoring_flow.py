@@ -3,7 +3,6 @@ from prefect import flow, task
 import yaml
 import os
 import datetime
-import pandas as pd
 import logging
 from monitoring_task import (
     check_data_drift_task,
@@ -65,15 +64,15 @@ def monitoring_flow():
         }
 
         # Check if any alerts should be triggered
-        alerts_needed = False
+        # alerts_needed = False
         if drift_results.get("drift_detected", False):
-            alerts_needed = True
+            # alerts_needed = True
             logger.warning(f"Data drift detected for model {model_name}")
 
         if performance_results.get("accuracy", 1.0) < model.get("thresholds", {}).get(
             "accuracy", 0.75
         ):
-            alerts_needed = True
+            # alerts_needed = True
             logger.warning(f"Model {model_name} accuracy below threshold")
 
         # if alerts_needed:

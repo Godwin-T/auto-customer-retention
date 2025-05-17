@@ -56,7 +56,7 @@ def retrain_model():
     """Retrain the model with new data"""
     try:
         endpoint = "http://127.0.0.1:8002/training/train"
-        response = requests.get(endpoint)
+        requests.get(endpoint)
 
     except Exception as e:
         logger.error(f"Error retraining model: {str(e)}")
@@ -71,7 +71,7 @@ def deploy_model():
         response = requests.get(endpoint)
 
         if response.status_code == 200:
-            logger.info(f"Successfully deployed new model")
+            logger.info("Successfully deployed new model")
             return {"status": "success"}
         else:
             logger.error(f"Failed to deploy model: {response.text}")

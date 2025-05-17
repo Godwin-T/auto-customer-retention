@@ -1,8 +1,13 @@
 import pandas as pd
-from datetime import datetime
 
 # from prefect import task
 from dotenv import load_dotenv
+from sklearn.preprocessing import (
+    LabelEncoder,
+    StandardScaler,
+    MinMaxScaler,
+    RobustScaler,
+)
 
 load_dotenv()
 
@@ -54,15 +59,6 @@ def process_dataframe(
     except Exception as e:
         print(f"Error processing dataframe: {str(e)}")
         raise
-
-
-import pandas as pd
-from sklearn.preprocessing import (
-    LabelEncoder,
-    StandardScaler,
-    MinMaxScaler,
-    RobustScaler,
-)
 
 
 def process_streamlit_dataframe(

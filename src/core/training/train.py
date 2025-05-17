@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from common.database import get_db_engine, initialize_mlflow
 from config import load_config
 from utils import pull_data_from_db
-from training.models import linear_model, Tree, XGBoost
+from training.models import linear_model, Tree
 
 
 def process_data(tablename):
@@ -91,7 +91,7 @@ def train_model():
         if isinstance(models, str):
             models = models.split(",")  # in case it's a comma-separated string in GET
 
-        problem_type = params.get("problem_type", "classification")
+        # problem_type = params.get("problem_type", "classification")
 
         _, data = process_streamlit_data(job_id=job_id)
 

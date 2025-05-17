@@ -60,7 +60,7 @@ def batch_predict():
     if not request_data or "csv_data" not in request_data:
         return jsonify({"status": "error", "message": "No data provided"}), 400
 
-    job_id = request_data.get("job_id")
+    # job_id = request_data.get("job_id")
     csv_data = request_data.get("csv_data")
 
     # Convert CSV string back to DataFrame

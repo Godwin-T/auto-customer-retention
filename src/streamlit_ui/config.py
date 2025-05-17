@@ -13,8 +13,8 @@ PAGES = [
 
 # API endpoints
 ENDPOINTS = {
-    "upload": f"http://localhost:8002/ingestion/upload",
-    "process": f"http://localhost:8002/ingestion/process_uploaded",
+    "upload": "http://localhost:8002/ingestion/upload",
+    "process": "http://localhost:8002/ingestion/process_uploaded",
     "train": "http://localhost:8002/training/train",  # Using the original URL as in the source
     "deploy": "http://localhost:8002/deployment/deploy-auto",  # Using the original URL as in the source
     "batch_predict": "http://localhost:8002/deployment/batch_predict",  # Using the original URL as in the source

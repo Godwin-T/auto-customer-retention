@@ -2,6 +2,7 @@
 import os
 import yaml
 import sqlite3
+import threading
 import pandas as pd
 from typing import Dict, Any, Optional
 
@@ -14,8 +15,8 @@ from evidently.metric_preset import (
 )
 
 # from evidently.metrics import ColumnDriftMetric, DatasetDriftMetric
-from prometheus_client import Gauge, make_wsgi_app
-
+from prometheus_client import Gauge
+db_lock = threading.Lock()
 
 # Define Prometheus metrics
 data_drift_gauge = Gauge("data_drift", "Data Drift Status", ["model"])
@@ -52,8 +53,9 @@ db_engine = connect_sqlite(customerdb)
 def fetch_data_from_db(tablename: str) -> Optional[pd.DataFrame]:
     """Retrieve all data from a database table."""
     try:
-        query = f"SELECT * FROM {tablename}"
-        return pd.read_sql(query, db_engine)
+        with db_lock:
+            query = f"SELECT * FROM {tablename}"
+            return pd.read_sql(query, db_engine)
     except Exception as e:
         print(f"Error pulling data from database: {str(e)}")
         return None

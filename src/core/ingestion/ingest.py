@@ -140,7 +140,7 @@ def get_data():
 
     if not table_name:
         return (
-            jsonify({"status": "error", "message": f"Table name is required"}),
+            jsonify({"status": "error", "message": "Table name is required"}),
             400,
         )
 

@@ -14,7 +14,7 @@ from hyperopt import hp, STATUS_OK, fmin, Trials, tpe
 from hyperopt.pyll import scope
 
 from config import load_config
-from .evaluate import evaluate
+from .evaluate import evaluate, evaluate_model
 
 logger = logging.getLogger(__name__)
 

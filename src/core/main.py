@@ -6,7 +6,6 @@ Modularized Flask application that combines:
 - Model Deployment
 """
 
-import os
 import logging
 from flask import Flask
 from dotenv import load_dotenv

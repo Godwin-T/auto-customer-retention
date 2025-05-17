@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 # Database connection settings
 TABLE_CHECK_INTERVAL = 600  # 10 minutes in seconds
 
-
 def load_config():
     """Load configuration from file specified in environment variables"""
     config_path = os.getenv("config_path")
@@ -56,9 +55,10 @@ def start_monitoring():
     while True:
         try:
             logger.info("Starting Monitoring Flow")
+    
             monitoring_flow.serve(
                 name="scheduled-comprehensive-monitoring",
-                cron="*/30 * * * *",
+                cron="*/3 * * * *",
                 tags=["monitoring", "ml-ops", "drift"],
             )
         except Exception as e:
@@ -70,9 +70,10 @@ def start_retraining():
     while True:
         try:
             logger.info("Starting Retraining Flow")
+        
             retraining_flow.serve(
                 name="scheduled-model-training",
-                cron="1 1 * * *",
+                cron="*/1 * * * *",
                 tags=["deployment", "ml-ops", "drift"],
             )
         except Exception as e:

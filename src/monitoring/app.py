@@ -58,7 +58,7 @@ def start_monitoring():
             logger.info("Starting Monitoring Flow")
             monitoring_flow.serve(
                 name="scheduled-comprehensive-monitoring",
-                cron="*/3 * * * *",
+                cron="*/30 * * * *",
                 tags=["monitoring", "ml-ops", "drift"],
             )
         except Exception as e:
@@ -72,7 +72,7 @@ def start_retraining():
             logger.info("Starting Retraining Flow")
             retraining_flow.serve(
                 name="scheduled-model-training",
-                cron="*/5 * * * *",
+                cron="1 1 * * *",
                 tags=["deployment", "ml-ops", "drift"],
             )
         except Exception as e:

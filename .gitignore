@@ -2,7 +2,6 @@
 **/databases
 **/__pycache__/
 **/models
-**/data
 **/tmp
 **.env
 **.dockerignore

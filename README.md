@@ -2,14 +2,13 @@
 
 A comprehensive machine learning system that handles the entire ML lifecycle from data ingestion to model deployment, focused on predicting and improving customer retention.
 
-[![CI/CD Pipeline Status](https://github.com/yourusername/customer-retention-system/workflows/CI-CD/badge.svg)](https://github.com/yourusername/customer-retention-system/actions)
-
 ## Project Overview
 
 This project implements a complete machine learning pipeline for customer retention prediction with:
 
-- Automated data ingestion and processing
-- Model training and evaluation
+- Data ingestion and processing
+- Model training and hyperparameter tuning
+- Model evaluation and comparison
 - Model deployment as microservices
 - Model monitoring and performance tracking
 - User-friendly interfaces for interacting with the system
@@ -20,18 +19,27 @@ The system is designed with a microservices architecture using Docker containers
 
 ```
 customer-retention-system/
-├── notebooks/              # Experimental Jupyter notebooks
-├── src/
-│   ├── data_ingestion/     # Data ingestion and processing services
-│   ├── training/           # Model training pipeline
-│   ├── deployment/         # Model deployment services
-│   ├── monitoring/         # Monitoring services (Prometheus, Grafana)
-│   └── prefect/            # Workflow orchestration
-├── config/                 # Configuration management
-├── tests/                  # Automated tests
+├── .github/workflows/      # CI pipeline configuration
+├── assets/                 # Project images and resources
+├── configs/                # Configuration management
+├── data/                   # Input data storage
+├── databases/              # Database scripts and migrations
 ├── docker-compose.yml      # Container orchestration
-├── .github/workflows/      # CI/CD pipeline configuration
-└── requirements.txt        # Dependencies
+├── example-env.sh          # Example .env
+├── migrations/             # Database migrations
+├── notebooks/              # Experimental Jupyter notebooks
+├── prepare_db.sh           # Database preparation script
+├── requirements.txt        # Dependencies
+├── src/
+│   ├── core/               # Core functionality
+│   │   ├── common/         # Shared utilities
+│   │   ├── ingestion/      # Data ingestion and processing
+│   │   ├── training/       # Model training pipeline
+│   │   └── deployment/     # Model deployment services
+│   ├── monitoring/         # Monitoring services (Prefect)
+│   ├── streamlit_ui/       # Streamlit user interface
+│   └── tmp/                # Temporary files
+└── tests/                  # Automated tests
 ```
 
 ## Key Features
@@ -39,8 +47,8 @@ customer-retention-system/
 - **End-to-End ML Pipeline**: Handles all aspects of the machine learning lifecycle
 - **Microservices Architecture**: Components are containerized for scalability and isolation
 - **Model Versioning & Tracking**: Integrated with MLflow for experiment tracking
-- **Automated Monitoring**: Prometheus and Grafana dashboards for system monitoring
-- **CI/CD Integration**: Automated testing and deployment via GitHub Actions
+- **Workflow Orchestration**: Utilizes prefect for workflow orchestration
+- **CI Integration**: Automated testing with GitHub Actions
 - **Multiple Interfaces**: Flask API endpoints and Streamlit UI for interacting with the system
 - **Extensible Model Framework**: Easily add or swap models as needed
 
@@ -75,17 +83,15 @@ The project uses Prefect for orchestrating the ML pipeline workflows. Below are 
 ### Flow Diagram
 ![Prefect Flow Diagram](./assets/flow.png)
 
-
 ## Technologies Used
 
-- **Machine Learning**: scikit-learn, XGBoost
+- **Machine Learning**: scikit-learn, XGBoost, TensorFlow/Keras
 - **Workflow Orchestration**: Prefect
 - **Model Tracking**: MLflow
 - **Containerization**: Docker
-- **Monitoring**: Prometheus, Grafana
-- **Database**: SQLite
+- **Database**: SQLite 
 - **Web Interfaces**: Flask, Streamlit
-- **CI/CD**: GitHub Actions
+- **CI**: GitHub Actions
 
 ## Getting Started
 
@@ -96,7 +102,7 @@ The project uses Prefect for orchestrating the ML pipeline workflows. Below are 
 ### Installation
 1. Clone the repository
    ```
-   git clone https://github.com/yourusername/customer-retention-system.git
+   https://github.com/Godwin-T/auto-customer-retention.git
    cd customer-retention-system
    ```
 
@@ -109,24 +115,55 @@ The project uses Prefect for orchestrating the ML pipeline workflows. Below are 
 
 3. Access the Streamlit UI at http://localhost:8501
 
-
 ## Usage
 
 ### API Endpoints
 - `/predict` - Get retention predictions for new customers
 - `/process` - Process new data
-- `/train` - Training models
+- `/train` - Train models with specified parameters
 
 ### Streamlit UI
 The Streamlit interface provides an interactive way to:
 - Upload customer data
 - Process and save data to database
-- Train model
-- Deploy model
+- Configure and train models with custom parameters
+- View model performance metrics and comparisons
+- Deploy models to production
+
+## Future Improvements
+
+### Database Migration
+The current system uses SQLite, which has limitations:
+- **Concurrency Issues**: SQLite experiences locking problems with concurrent operations
+- **Scalability Constraints**: Not suitable for high-volume production environments
+
+**Planned PostgreSQL Implementation**:
+- Better handling of concurrent operations
+- Improved performance for larger datasets
+- More robust transaction support
+- Better integration with monitoring tools
+
+### Model Enhancements
+- **Advanced Hyperparameter Tuning**: Implement Grid Search and Random Search for optimal parameter selection
+- **AutoML Integration**: Add support for automated model selection and feature engineering
+- **Ensemble Methods**: Implement stacking and blending techniques for improved prediction accuracy
+- **Custom Loss Functions**: Support for specialized loss functions tailored to retention prediction
+
+### Flexibility Improvements
+- **Parameter Customization**: Enhanced configuration options for all pipeline stages
+- **Feature Selection Algorithms**: Automatic feature importance analysis and selection
+- **Data Drift Detection**: Automated detection of data distribution changes
+- **A/B Testing Framework**: Compare model versions in production
 
 ## Development
 
 ### Adding New Models
-1. Create a new model class in `src/training/train/`
+1. Create a new model class in `src/core/training/`
 2. Register the model in the model registry
 3. Update configuration as needed
+
+### Database Migration Guide
+To switch from SQLite to PostgreSQL:
+1. Update database connection settings in `config.yaml`
+2. Run migration script: `python src/core/common/db_migration.py`
+3. Update Docker Compose file to include PostgreSQL service
